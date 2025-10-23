@@ -44,14 +44,14 @@
                 <img src="/icons/toolbox.png" class="sidebar-content-icon">
                 <a>Toolbox</a>
             </li>
-            <li class="sidebar-content" onclick="window.open('/offline-download', '_blank')">
+            <li class="sidebar-content" onclick="window.open('/blank', '_blank')">
                 <img src="/icons/download.png" class="sidebar-content-icon">
-                <a>Download Offline</a>
+                <a>Coming soon!</a>
             </li>
-            <!--<li id="sidebar-changelog" class="sidebar-content" onclick="sidebarChangePage('changelog')">
+            <li id="sidebar-changelog" class="sidebar-content" onclick="sidebarChangePage('changelog')">
                 <img src="/icons/changelog.png" class="sidebar-content-icon">
                 <a>Changelog</a>
-            </li>-->
+            </li>
             <li id="sidebar-settings" class="sidebar-content" style="position:absolute;bottom:2%" onclick="sidebarChangePage('settings')">
                 <img src="/icons/settings.png" class="sidebar-content-icon">
                 <a>Settings</a>
@@ -61,14 +61,6 @@
             </div>
         </div>
         <iframe src="about:blank" class="sidebar_frame"></iframe>
-        <main>
-            <!--<button class="mc-btn" id="download-btn" style="right:7px;top:7px;" onclick="window.open('/offline-download','_blank')"><i class="fa-solid fa-download"></i></button>-->
-            <button class="mc-btn" id="fullscreen-btn" style="right:7px;bottom:calc(7.5% + 7px);visibility:hidden;opacity:0;z-index:175;" onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i></button>
-            <button class="mc-btn" id="aboutBlank-btn" style="right:54px;bottom:calc(7.5% + 7px);visibility:hidden;opacity:0;" onclick="openAboutBlankWindow(window.currentVersion)"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
-            <button class="mc-btn" id="reload-btn" style="right:101px;bottom:calc(7.5% + 7px);visibility:hidden;opacity:0;" onclick="window.gameFrame.contentWindow.location.reload()"><i class="fa-solid fa-rotate"></i></button>
-            <iframe src="about:blank" class="game-frame-load"></iframe>
-            <iframe class="game-frame" onload="this.contentWindow.focus();" src="/blank.html" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-orientation-lock allow-pointer-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation allow-top-navigation-by-user-activation" scrolling="no" allow="clipboard-read; clipboard-write"></iframe>
-        </main>
         <div onclick="window.gameFrame.contentWindow.focus()" class="horizontal-bar topbar" style="top:0;height:6%;">
             <a id="topbar-play" onclick="topbarChangePage('play')" class="active">Play</a>
             <a id="topbar-installations" onclick="topbarChangePage('installations')" class="inactive">Installations</a>

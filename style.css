@@ -1,6 +1,10 @@
 :root {
     --bg: #1e1e1e;
     --bg-body: #131f29;
+    --primary-orange: #ff6b35;
+    --primary-orange-dark: #e85a28;
+    --primary-orange-darker: #d04b1c;
+    --primary-orange-light: #ff7d4d;
 }
 
 @keyframes fade-in {
@@ -59,7 +63,7 @@ body {
     width: 75px;
     height: 75px;
     border: 15px solid #dddddd;
-    border-top-color: #009758;
+    border-top-color: #ff6b35;
     border-radius: 50%;
     animation: loading 0.75s ease infinite;
 }
@@ -226,7 +230,7 @@ input, button {
     display: none;
     width: 50%;
     height: 4px;
-    background-color: #087400;
+    background-color: #ff6b35;
     position: relative;
     left: 25%;
     top: 5px;
@@ -306,42 +310,42 @@ input, button {
 }
 
 .version-content .vanilla {
-    background-color: #065800;
+    background-color: #ff6b35;
 }
 
 .version-content .vanilla:hover {
-    background-color: #087400;
+    background-color: #ff7d4d;
 }
 
 .version-content .modded {
-    background-color: #c29f01;
+    background-color: #ff8c42;
 }
 
 .version-content .modded:hover {
-    background-color: #cea902;
+    background-color: #ffa05a;
 }
 
 .version-content .hacked {
-    background-color: #790101;
+    background-color: #d04b1c;
 }
 
 .version-content .hacked:hover {
-    background-color: #970202;
+    background-color: #e85a28;
 }
 
 .version-content .custom {
-    background-color: #0165c2;
+    background-color: #ff9e5c;
 }
 
 .version-content .custom:hover {
-    background-color: #0371d8;
+    background-color: #ffb074;
 }
 
 .play-btn {
     color: white;
     text-decoration: none;
-    background: #3b874b;
-    border: 2px solid rgb(58, 88, 44);
+    background: #ff6b35;
+    border: 2px solid #e85a28;
     position: absolute;
     left: 50%;
     bottom: 50%;
@@ -359,7 +363,7 @@ input, button {
     box-shadow: none;
     transform: translate(-50%, 50%);
     font-size: 1.3rem;
-    background-color: #449557;
+    background-color: #ff7d4d;
 }
 
 .play-btn-running {
@@ -441,13 +445,13 @@ input, button {
 }
 
 .key-item .vanilla {
-    background-color: #065800;
+    background-color: #ff6b35;
 }
 
 .key-item .modded {
-    background-color: #c29f01;
+    background-color: #ff8c42;
 }
 
 .key-item .hacked {
-    background-color: #790101;
+    background-color: #d04b1c;
 }

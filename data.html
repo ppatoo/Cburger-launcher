@@ -35,7 +35,7 @@
             width: 100%;
             height: 100%;
             background: transparent;
-            backdrop-filter: blur(20px);
+            /* REMOVED: backdrop-filter: blur(20px); */
             color: white;
             display: flex;
             justify-content: center;
@@ -47,8 +47,8 @@
             min-width: 350px;
             max-width: 550px;
             background: #202221;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 107, 53, 0.5);
+            /* REMOVED: backdrop-filter: blur(20px); */
             color: white;
             padding: 30px 40px;
             border-radius: 15px;
@@ -79,19 +79,19 @@
         }
 
         .green {
-            background-color: #1a854f;
+            background-color: #ff6b35;
         }
 
         .green:hover {
-            background-color: #167043;
+            background-color: #ff7d4d;
         }
 
         .yellow {
-            background-color: #debd2b;
+            background-color: #ff8c42;
         }
 
         .yellow:hover {
-            background-color: #ccad21;
+            background-color: #ffa05a;
         }
 
         .red {
@@ -103,7 +103,7 @@
         }
 
         .warning {
-            color: #ce1b1b;
+            color: #ff6b35;
         }
 
         html.swal2-shown,body.swal2-shown { overflow-y: hidden !important; height: auto!important;}
@@ -238,30 +238,6 @@
             alert('Your data has been deleted!');
             top.location.reload();
         }
-        //Swal.fire({
-        //    title: "Are you sure?",
-        //    icon: "warning",
-        //    showCancelButton: true,
-        //    confirmButtonColor: "#ce1b1b",
-        //    confirmButtonText: "Yes",
-        //    cancelButtonColor: "#1a854f",
-        //    cancelButtonText: "No",
-        //    heightAuto: false
-        //}).then((result) => {
-        //    if (result.isConfirmed) {
-        //        (async()=>{await deleteData()})();
-        //        Swal.fire({
-        //            title: "Deleted!",
-        //            text: "Your data has been deleted.",
-        //            icon: "success",
-        //            heightAuto: false
-        //        }).then((result) => {
-        //            if (result.isConfirmed) {
-        //                top.location.reload();
-        //            }
-        //        });
-        //    }
-        //});
     }
     
     async function deleteData() {
