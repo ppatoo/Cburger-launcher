@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/iniFrame.js"></script>
+    <link rel="stylesheet" href="./mainStyle.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <style>
+        body {
+            background-color: #2b2b2b;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            margin: 50px;
+        }
+
+        button {
+            background-color: #555;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #666;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #333;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        li img {
+            width: 30px;
+            height: 30px;
+        }
+
+        li .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        li .actions button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        li .actions button:hover {
+            background-color: #45a049;
+        }
+
+        li .actions .deleteBtn {
+            background-color: #f44336;
+        }
+
+        li .actions .deleteBtn:hover {
+            background-color: #da190b;
+        }
+
+        li .actions .editBtn {
+            background-color: #ffa500;
+        }
+
+        li .actions .editBtn:hover {
+            background-color: #ff8c00;
+        }
+
+        li .actions .upBtn, .actions .downBtn {
+            background-color: #888;
+        }
+
+        li .actions .upBtn:hover, .actions .downBtn:hover {
+            background-color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="newInstallationBtn">New Installation</button>
+        <ul id="installationList"></ul>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            top.reloadCustomVersions();
+            const installationList = document.getElementById("installationList");
+            const newInstallationBtn = document.getElementById("newInstallationBtn");
+
+            const installations = getInstallationsFromLocalStorage();
+            renderInstallations(installations);
+
+            newInstallationBtn.addEventListener("click", () => {
+                Swal.fire({
+                    title: 'Enter version\'s URL',
+                    input: 'text',
+                    inputPlaceholder: 'Enter URL here',
+                    showCancelButton: true,
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'You need to enter a URL!';
+                        }
+                    }
+                }).then((urlResult) => {
+                    if (urlResult.value) {
+                        let version = urlResult.value;
+                        if (!version.toString().startsWith("https://") && !version.toString().startsWith("http://")) {
+                            version = 'http://'+version;
+                        };
+                        Swal.fire({
+                            title: 'Enter version name',
+                            input: 'text',
+                            inputPlaceholder: 'Enter version name here',
+                            showCancelButton: true,
+                            inputValidator: (value) => {
+                                if (!value) {
+                                    return 'You need to enter a version name!';
+                                }
+                            }
+                        }).then((nameResult) => {
+                            if (nameResult.value) {
+                                const versionName = nameResult.value;
+                                installations.push(`${version}|${versionName}`);
+                                setInstallationsToLocalStorage(installations);
+                                renderInstallations(installations);
+                                top.reloadCustomVersions();
+                            }
+                        });
+                    }
+                });
+            });
+
+            function renderInstallations(installations) {
+                installationList.innerHTML = "";
+                installations.forEach((installation, index) => {
+                    const [version, versionName] = installation.split("|");
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <span>${versionName} (${version})</span>
+                        <div class="actions">
+                            ${index > 0 ? `<button class="upBtn" data-index="${index}">&#x25B2;</button>` : ''}
+                            ${index < installations.length - 1 ? `<button class="downBtn" data-index="${index}">&#x25BC;</button>` : ''}
+                            <button class="playBtn" data-version="${version}">Play</button>
+                            <button class="editBtn" data-index="${index}">Edit</button>
+                            <button class="deleteBtn" data-index="${index}">Delete</button>
+                        </div>
+                    `;
+                    installationList.appendChild(li);
+                });
+
+                document.querySelectorAll(".playBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const version = event.target.getAttribute("data-version");
+                        top.reloadCustomVersions();
+                        top.playVersion('dropdown-custom-version-'+version);
+                    });
+                });
+
+                document.querySelectorAll(".deleteBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const index = event.target.getAttribute("data-index");
+                        installations.splice(index, 1);
+                        setInstallationsToLocalStorage(installations);
+                        renderInstallations(installations);
+                        top.reloadCustomVersions();
+                    });
+                });
+
+                document.querySelectorAll(".editBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const index = event.target.getAttribute("data-index");
+                        const [currentVersion, currentVersionName] = installations[index].split("|");
+                        
+                        Swal.fire({
+                            title: 'Edit version\'s URL',
+                            input: 'text',
+                            inputValue: currentVersion,
+                            showCancelButton: true,
+                            inputValidator: (value) => {
+                                if (!value) {
+                                    return 'You need to enter a URL!';
+                                }
+                            }
+                        }).then((urlResult) => {
+                            if (urlResult.value) {
+                                let newVersion = urlResult.value;
+                                if (!newVersion.toString().startsWith("https://") && !newVersion.toString().startsWith("http://")) {
+                                    newVersion = 'http://'+newVersion;
+                                };
+                                Swal.fire({
+                                    title: 'Edit version name',
+                                    input: 'text',
+                                    inputValue: currentVersionName,
+                                    showCancelButton: true,
+                                    inputValidator: (value) => {
+                                        if (!value) {
+                                            return 'You need to enter a version name!';
+                                        }
+                                    }
+                                }).then((nameResult) => {
+                                    if (nameResult.value) {
+                                        const newVersionName = nameResult.value;
+                                        installations[index] = `${newVersion}|${newVersionName}`;
+                                        setInstallationsToLocalStorage(installations);
+                                        renderInstallations(installations);
+                                        top.reloadCustomVersions();
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+
+                document.querySelectorAll(".upBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const index = parseInt(event.target.getAttribute("data-index"));
+                        if (index > 0) {
+                            [installations[index - 1], installations[index]] = [installations[index], installations[index - 1]];
+                            setInstallationsToLocalStorage(installations);
+                            renderInstallations(installations);
+                            top.reloadCustomVersions();
+                        }
+                    });
+                });
+
+                document.querySelectorAll(".downBtn").forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        const index = parseInt(event.target.getAttribute("data-index"));
+                        if (index < installations.length - 1) {
+                            [installations[index + 1], installations[index]] = [installations[index], installations[index + 1]];
+                            setInstallationsToLocalStorage(installations);
+                            renderInstallations(installations);
+                            top.reloadCustomVersions();
+                        }
+                    });
+                });
+            }
+
+            function getInstallationsFromLocalStorage() {
+                const installations = localStorage.getItem("installations");
+                return installations ? JSON.parse(installations) : [];
+            }
+
+            function setInstallationsToLocalStorage(installations) {
+                localStorage.setItem("installations", JSON.stringify(installations));
+            }
+        });
+    </script>
+</body>
+</html>

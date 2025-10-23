@@ -1,0 +1,167 @@
+const express = require('express');
+const axios = require('axios');
+const AdmZip = require('adm-zip');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const port = 3005;
+
+const files = [
+  {
+    url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-builds/raw/branch/main/EaglercraftX_1.8_Offline_International.html',
+    filename: 'EaglercraftX-1.8.html'
+  },
+  {
+    url: 'https://git.eaglercraft.rip/3rdparty/peytonplayz585-shadow-4.0/raw/branch/main/javascript/Shadow_Client_International.html',
+    filename: 'Shadow.html'
+  },
+  {
+    url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-builds/raw/branch/main/Eaglercraft_1.5_Offline_Download.html',
+    filename: 'Eaglercraft-1.5.html'
+  },
+  {
+    url: 'http://127.0.0.1:80/mc/beta-1.7.3/offline.html',
+    filename: 'Eaglercraft-b1.7.3.html'
+  },
+  {
+    url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-builds/raw/branch/main/Eaglercraft_b1.3_Offline_Download.html',
+    filename: 'Eaglercraft-b1.3.html'
+  },
+  {
+    url: 'https://git.eaglercraft.rip/3rdparty/peytonplayz585-a1.2.6/raw/branch/main/offline_download/Alpha_Offline_Download.html',
+    filename: 'Eaglercraft-a1.2.6.html'
+  },
+  {
+    url: 'http://127.0.0.1:80/mc/infdev/index.html',
+    filename: 'Eaglercraft-Infdev.html'
+  },
+  {
+    url: 'https://git.eaglercraft.rip/3rdparty/peytonplayz585-indev/raw/branch/main/Indev.html',
+    filename: 'Eaglercraft-Indev.html'
+  }//,
+  //{
+  //  url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-builds/raw/branch/main/EaglercraftX_1.8_EaglerXBungee.jar',
+  //  filename: 'EaglercraftXBungee.jar'
+  //},
+  //{
+  //  url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-builds/raw/branch/main/Eaglercraft_1.5_Bungee.zip',
+  //  filename: 'EaglercraftBungee.zip'
+  //},
+  //{
+  //  url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-1.8/raw/branch/main/gateway/EaglercraftXVelocity/EaglerXVelocity-Latest.jar',
+  //  filename: 'EaglercraftXVelocity.jar'
+  //},
+  //{
+  //  url: 'https://git.eaglercraft.rip/eaglercraft/eaglercraft-builds/raw/branch/main/Eaglercraft_SharedWorldRelay.zip',
+  //  filename: 'Relay.zip'
+  //}
+];
+
+let downloadInProgress = false;
+const zipPath = path.join(__dirname, 'files.zip');
+
+const getRandomTmpZipPath = () => {
+  const randomNum = Math.floor(Math.random() * 100000);
+  return path.join(__dirname, `files.${randomNum}.tmp.zip`);
+};
+
+const downloadFiles = async () => {
+  if (downloadInProgress) {
+    console.log('Download is already in progress.');
+    return;
+  }
+
+  downloadInProgress = true;
+  console.log('Starting to download files...');
+  const zip = new AdmZip();
+  const tmpZipPath = getRandomTmpZipPath();
+
+  try {
+    for (const file of files) {
+      const response = await axios.get(file.url, { responseType: 'arraybuffer' });
+      zip.addFile(file.filename, response.data);
+      console.log(`Downloaded: ${file.url}`);
+    }
+
+    const zipBuffer = zip.toBuffer();
+    fs.writeFileSync(tmpZipPath, zipBuffer);
+    console.log(`Temporary zip file created at ${tmpZipPath}.`);
+
+    if (fs.existsSync(zipPath)) {
+      fs.unlinkSync(zipPath);
+      console.log('Old zip file deleted.');
+    }
+
+    fs.renameSync(tmpZipPath, zipPath);
+    console.log(`Temporary zip file renamed to ${zipPath}.`);
+  } catch (error) {
+    console.error('Failed to download files:', error);
+  } finally {
+    downloadInProgress = false;
+  }
+};
+
+app.get('/download', async (req, res) => {
+  let aborted = false;
+
+  req.on('aborted', () => {
+    aborted = true;
+    console.log('Request aborted by the client.');
+  });
+
+  if (fs.existsSync(zipPath)) {
+    console.log('Serving cached zip file.');
+    res.download(zipPath, 'files.zip', (err) => {
+      if (err && !aborted) {
+        console.error('Error serving cached zip file:', err);
+        if (!res.headersSent) {
+          res.status(500).send('Failed to serve cached file');
+        }
+      }
+    });
+
+    // Update cache in the background
+    console.log('Updating cache in the background...');
+    setImmediate(async () => {
+      if (!downloadInProgress) {
+        try {
+          await downloadFiles();
+          console.log('Cache updated in the background.');
+        } catch (error) {
+          console.error('Failed to update cache in the background:', error);
+        }
+      }
+    });
+  } else {
+    console.log('No cached file found, downloading files...');
+    try {
+      await downloadFiles();
+      console.log('New zip file created and cache updated.');
+      if (!aborted) {
+        res.download(zipPath, 'files.zip');
+      }
+    } catch (error) {
+      console.error('Failed to create zip file:', error);
+      if (!res.headersSent) {
+        res.status(500).send('Failed to download files');
+      }
+    }
+  }
+});
+
+// Handle client abort (e.g., cancel download) gracefully
+app.use((err, req, res, next) => {
+  if (err) {
+    console.error('Server error:', err);
+    if (!res.headersSent) {
+      res.status(500).send('Server error');
+    }
+  } else {
+    next();
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});

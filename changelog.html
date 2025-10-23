@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog</title>
+    <style>
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://fonts.cdnfonts.com/s/20997/Minecraft.ttf') format('truetype');
+        }
+        body {
+            font-family: 'Minecraft', sans-serif;
+            background-color: #2d2d2d;
+            color: #ddd;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #3c3c3c;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .entry {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .version {
+            font-size: 2em;
+            color: #fff;
+            font-weight: bold;
+        }
+        .section-title {
+            font-size: 1.1em;
+            color: #fff;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .entry ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .entry ul li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .entry ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Changelog</div>
+        <div class="entry">
+            <div class="version">v1.0.0</div>
+            <p>First release.</p>
+            <div class="section-title">Features</div>
+            <ul>
+                <li>Fully functional minecraft 1.8.8, 1.5.2, b1.3, a1.2.6, and Classic.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

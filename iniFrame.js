@@ -1,0 +1,1 @@
+//if(top.location == location){location.href='/'}

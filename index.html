@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CheeseBurger Launcherr</title>
+    <link rel="icon" href="/icons/mc-logo.png">
+    <link rel="stylesheet" href="/style.css">
+    <script defer src="/master.js"></script>
+    <script src="/siteAPI.js"></script>
+    <script src="/fontawesome.js" crossorigin="anonymous"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#009933">
+    <meta property="og:title" content="Cburger Launcher" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="/" />
+    <meta property="og:image" content="/shader-screenshots/0.jpeg" />
+    <meta property="og:description" content="Minecraft launcher for the web." />
+    <meta property="og:site_name" content="Cburger.net" />
+    <meta property="og:locale" content="en_US" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+</head>
+<body>
+    <noscript>You need to enable javascript to run this app</noscript>
+    <div class="loader"></div>
+    <div class="main-content">
+        <div class="sidebar" onclick="window.gameFrame.contentWindow.focus();">
+            <div class="sidebar_profile">
+                <img src="/icons/default-profile-icon.png" class="sidebar_profile_icon">
+                <a>${usrName}</a>
+            </div>
+            <li id="sidebar-launcher" class="sidebar-content sidebar-content-selected" onclick="sidebarChangePage('launcher')">
+                <img src="/icons/mc-logo.png" class="sidebar-content-icon">
+                <a>Launcher</a>
+            </li>
+            <li id="sidebar-servers" class="sidebar-content" onclick="sidebarChangePage('servers')">
+                <img src="/icons/server.png" class="sidebar-content-icon">
+                <a>Server List</a>
+            </li>
+            <li id="sidebar-data" class="sidebar-content" onclick="sidebarChangePage('data')">
+                <img src="/icons/folder.png" class="sidebar-content-icon">
+                <a>Site Data</a>
+            </li>
+            <li id="sidebar-toolbox" class="sidebar-content" onclick="sidebarChangePage('toolbox')">
+                <img src="/icons/toolbox.png" class="sidebar-content-icon">
+                <a>Toolbox</a>
+            </li>
+            <li class="sidebar-content" onclick="window.open('/offline-download', '_blank')">
+                <img src="/icons/download.png" class="sidebar-content-icon">
+                <a>Download Offline</a>
+            </li>
+            <!--<li id="sidebar-changelog" class="sidebar-content" onclick="sidebarChangePage('changelog')">
+                <img src="/icons/changelog.png" class="sidebar-content-icon">
+                <a>Changelog</a>
+            </li>-->
+            <li id="sidebar-settings" class="sidebar-content" style="position:absolute;bottom:2%" onclick="sidebarChangePage('settings')">
+                <img src="/icons/settings.png" class="sidebar-content-icon">
+                <a>Settings</a>
+            </li>
+            <div class="dev-info" style="position:absolute;bottom:0;left:5%;">
+                <span style="cursor:default;color:#969696">v${appVersion}</span>
+            </div>
+        </div>
+        <iframe src="about:blank" class="sidebar_frame"></iframe>
+        <main>
+            <!--<button class="mc-btn" id="download-btn" style="right:7px;top:7px;" onclick="window.open('/offline-download','_blank')"><i class="fa-solid fa-download"></i></button>-->
+            <button class="mc-btn" id="fullscreen-btn" style="right:7px;bottom:calc(7.5% + 7px);visibility:hidden;opacity:0;z-index:175;" onclick="toggleFullscreen()"><i class="fa-solid fa-expand"></i></button>
+            <button class="mc-btn" id="aboutBlank-btn" style="right:54px;bottom:calc(7.5% + 7px);visibility:hidden;opacity:0;" onclick="openAboutBlankWindow(window.currentVersion)"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+            <button class="mc-btn" id="reload-btn" style="right:101px;bottom:calc(7.5% + 7px);visibility:hidden;opacity:0;" onclick="window.gameFrame.contentWindow.location.reload()"><i class="fa-solid fa-rotate"></i></button>
+            <iframe src="about:blank" class="game-frame-load"></iframe>
+            <iframe class="game-frame" onload="this.contentWindow.focus();" src="/blank.html" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-orientation-lock allow-pointer-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation allow-top-navigation-by-user-activation" scrolling="no" allow="clipboard-read; clipboard-write"></iframe>
+        </main>
+        <div onclick="window.gameFrame.contentWindow.focus()" class="horizontal-bar topbar" style="top:0;height:6%;">
+            <a id="topbar-play" onclick="topbarChangePage('play')" class="active">Play</a>
+            <a id="topbar-installations" onclick="topbarChangePage('installations')" class="inactive">Installations</a>
+            <!--<a id="topbar-skins" onclick="topbarChangePage('skins')" class="inactive">Skins</a>
+            <a id="topbar-patchnotes" onclick="topbarChangePage('patchnotes')" class="inactive">Patch Notes</a>-->
+        </div>
+        <iframe src="about:blank" class="topbar_frame"></iframe>
+        <div onclick="window.gameFrame.contentWindow.focus()" class="horizontal-bar" style="bottom:0;height:7.5%;">
+            <div class="version-dropdown">
+                <button style="float:left;" onclick="versionDropdown()" class="version-btn">Select Version <i id="version-btn-arrow" class="fa-solid fa-caret-down"></i></button>
+                <div class="version-content" id="versionContent">
+                    <a class="modded" onclick="changeVersion('scratch')">TuffNet Launcher</a>
+                </div>
+            </div>
+            <a class="play-btn" onclick="playGame()">PLAY With Cburger!</a>
+            <span>Updated with <i style="color:#ea3737;text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa-solid fa-heart"></i> by Patoss..</span>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

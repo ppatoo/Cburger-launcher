@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebMC Docs</title>
+    <link rel="icon" href="/favicon.webp">
+    <script src="/fontawesome.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        section {
+            padding: 20px;
+            background: #fff;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        p, ul {
+            color: #555;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 10px;
+            background: #f4f4f4;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        footer {
+            padding: 20px;
+            margin-top: 20px;
+            color: #fff;
+            background-color: #333;
+            text-align: center;
+        }
+        a {
+            color: #2575fc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .a-norm:hover {
+            text-decoration: none;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #6a11cb;
+            color: #fff;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            margin: 10px 0;
+        }
+        .button:hover {
+            background-color: #2575fc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>WebMC Docs</h1>
+        </div>
+    </header>
+
+    <section class="container">
+        <h2>Creating a Custom Link</h2>
+        <h3>Method 1: With a domain.</h3>
+        <p>To create a custom link using a domain, follow these steps:</p>
+        <ol>
+            <li>Open your domain registrar's DNS management settings</li>
+            <li>Create a new record with type "<code>CNAME</code>", and the value "<code>dns.webmc.xyz</code>"</li>
+            <a class="a-norm">TIPS: You can also create a type "<code>A</code>" record with the value "<code>194.164.76.108</code>" and an "<code>AAAA</code>" record with the value "<code>2a02:4780:28:2a9::1</code>"<br>If using <a href="https://cloudflare.com">cloudflare<a class="a-norm">, You can get a free SSL certificate by making sure that the <i style="color:orange" class="fa-brands fa-cloudflare"></i> icon is colored, not <i style="color:grey" class="fa-brands fa-cloudflare"></i></a></a>
+            <li>Just wait up to 48 hours and you should be able to visit your domain and see the WebMC Launcher</li>
+        </ol>
+    </section>
+
+    <section class="container">
+        <h2>FAQ</h2>
+        <ul>
+            <li><strong>Q: Can I use the WebMC Launcher with any Minecraft server version?</strong><br>
+            A: You can only join a server corresponding to your Eaglercraft version, but if the server is running <a href="https://viaversion.com/viarewind">ViaRewind</a> then you can join newer servers, such as 1.21.</li>
+
+            <li><strong>Q: Can I play 1.21?</strong><br>
+            A: No. Any version past 1.17 is near impossible to make work in a web browser, but 1.12.2 support is coming soon.</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>For support, contact us at <a href="mailto:feedback@webmc.xyz">feedback@webmc.xyz</a>.</p>
+    </footer>
+</body>
+</html>

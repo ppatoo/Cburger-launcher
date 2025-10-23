@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EaglercraftX options.txt editor</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #2e2e2e;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 80%;
+            height: 80%;
+            background-color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .drop-zone {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .drop-zone:hover {
+            border-color: #007bff/*#0056b3*/;
+        }
+        #fileInput {
+            display: none;
+        }
+        #editor {
+            display: none;
+            width: calc(100% - 80px);
+            height: calc(100% - 120px);
+            border: 1px solid #555;
+            padding: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow: auto;
+            background-color: #2e2e2e;
+            color: #e0e0e0;
+            border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+            box-sizing: border-box;
+        }
+        #saveButton {
+            display: none;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        #saveButton:hover {
+            background-color: #218838;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <div class="container">
+        <div class="drop-zone" id="dropZone">
+            <p>Drop Cburger Launcher save here or click to select file</p>
+            <input type="file" id="fileInput" accept=".save">
+        </div>
+        <div id="editor" contenteditable="true"></div>
+        <div id="saveButton">Save Changes</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+    <script>
+        const lsObject = "_eaglercraftX.g";
+        const isWebMC = top.window.isWebMC&&localStorage.getItem(lsObject);
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const editor = document.getElementById('editor');
+        const saveButton = document.getElementById('saveButton');
+        let originalJson;
+        let originalFileName;
+
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.classList.add('hover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('hover');
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.classList.remove('hover');
+            const files = event.dataTransfer.files;
+            if (files.length) {
+                handleFile(files[0]);
+            }
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            if (file.name.endsWith('.save')) {
+                originalFileName = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    try {
+                        const json = JSON.parse(text);
+                        originalJson = json;
+                        const compressedData = json.localStorage[lsObject];
+
+                        setEditor(decompress(compressedData));
+                    } catch (error) {
+                        console.error('Error processing the file:', error);
+                        alert('Error processing the file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please upload a valid .save file');
+            }
+        }
+
+        function decompress(data) {
+            const decodedData = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+            const decompressedData = pako.ungzip(decodedData, { to: 'string' });
+
+            return decompressedData;
+        }
+
+        function compress(data) {
+            return btoa(String.fromCharCode.apply(null, pako.gzip(data)));
+        }
+
+        function setEditor(text) {
+            editor.textContent = text;
+            dropZone.classList.add('hidden');
+            editor.style.display = 'block';
+            saveButton.style.display = 'block';
+        }
+
+        saveButton.addEventListener('click', () => {
+            if (!isWebMC) {
+                try {
+                    const editedContent = editor.textContent;
+                    const compressedData = compress(editedContent)
+                    originalJson.localStorage[lsObject] = compressedData;
+
+                    const newFileContent = JSON.stringify(originalJson);
+                    const blob = new Blob([newFileContent], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = originalFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Error saving the file:', error);
+                    alert('Error saving the file: ' + error.message);
+                }
+            } else {
+                localStorage.setItem(lsObject, compress(editor.textContent));
+                top.location.reload();
+            }
+        });
+
+        if(isWebMC){setEditor(decompress(localStorage.getItem(lsObject)))};
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script defer src="/master.js"></script>
+    <script src="/swal2.js"></script>
+    <script src="/fontawesome.js" crossorigin="anonymous"></script>
+    <style>
+        @keyframes fade-in {
+            0% { opacity: 0 }
+            100% { opacity: 1 }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            text-decoration: none;
+            list-style-type: none;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-image 1s ease-in-out;
+            overflow: hidden;
+        }
+
+        .blur {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            backdrop-filter: blur(20px);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+        }
+
+        .main {
+            min-width: 350px;
+            max-width: 550px;
+            background: #202221;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-family: sans-serif;
+            font-size: 1rem;
+            padding-right: 10px;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .btn {
+            border: none;
+            padding: 1em;
+            margin-top: 1.5em;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s ease-in-out;
+            min-width: 150px;
+        }
+
+        .green {
+            background-color: #1a854f;
+        }
+
+        .green:hover {
+            background-color: #167043;
+        }
+
+        .yellow {
+            background-color: #debd2b;
+        }
+
+        .yellow:hover {
+            background-color: #ccad21;
+        }
+
+        .red {
+            background-color: #ce1b1b;
+        }
+
+        .red:hover {
+            background-color: #b81515;
+        }
+
+        .warning {
+            color: #ce1b1b;
+        }
+
+        html.swal2-shown,body.swal2-shown { overflow-y: hidden !important; height: auto!important;}
+    </style>
+</head>
+<body>
+    <noscript>You need to enable javascript to run this app</noscript>
+    <div class="blur">
+        <div class="main">
+            <h1 style="cursor:default">Site Data</h1>
+            <button id="dl-data" class="btn green" onclick="exportData();"><i class="fa-solid fa-download"></i> Download Data</button>
+            <label for="dl-data">Downloads your site settings and game data.</label>
+            <button id="ul-data" class="btn yellow" onclick="const inputElement = document.createElement('input');inputElement.type = 'file';inputElement.accept = '.save';inputElement.addEventListener('change', uploadData);inputElement.click();"><i class="fa-solid fa-upload"></i> Upload Data</button>
+            <label for="ul-data">Upload a downloaded save.</label>
+            <button id="del-data" class="btn red" onclick="confirmDeleteData()"><i class="fa-solid fa-trash"></i> Delete Data</button>
+            <label for="del-data">Reset site settings and game data.<br><br><span class="warning">WARNING: THIS WILL DELETE ALL GAME DATA, PLEASE BACKUP YOUR WORLDS!</span></label>
+        </div>
+    </div>
+    <script>
+        async function exportData() {
+        let localStorageData = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            localStorageData[key] = localStorage.getItem(key);
+        }
+
+        async function getAllIndexedDBData() {
+            const databases = await indexedDB.databases();
+            let allDBData = {};
+
+            for (const dbInfo of databases) {
+                const dbName = dbInfo.name;
+                if (!dbName) continue;
+
+                allDBData[dbName] = {};
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName);
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+
+                for (const storeName of db.objectStoreNames) {
+                    const storeData = await new Promise((resolve, reject) => {
+                        const transaction = db.transaction(storeName, 'readonly');
+                        const store = transaction.objectStore(storeName);
+                        const request = store.getAll();
+                        request.onsuccess = (event) => resolve(event.target.result);
+                        request.onerror = (event) => reject(event.target.error);
+                    });
+                    allDBData[dbName][storeName] = storeData;
+                }
+            }
+            return allDBData;
+        }
+
+        const indexedDBData = await getAllIndexedDBData();
+
+        const combinedData = {
+            localStorage: localStorageData,
+            indexedDB: indexedDBData
+        };
+
+        const jsonData = JSON.stringify(combinedData);
+        const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
+
+        const date = new Date();
+        const formattedDate = `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}_${String(date.getDate()).padStart(2, '0')}`;
+
+        const filename = `webmc_${formattedDate}.save`;
+        const element = document.createElement('a');
+        element.href = 'data:text/plain;base64,' + base64Data;
+        element.download = filename;
+
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+
+    async function uploadData(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async function(e) {
+            const base64Data = e.target.result.split(',')[1];
+            const jsonData = decodeURIComponent(escape(atob(base64Data)));
+            const combinedData = JSON.parse(jsonData);
+
+            for (const [key, value] of Object.entries(combinedData.localStorage)) {
+                localStorage.setItem(key, value);
+            }
+
+            for (const [dbName, dbData] of Object.entries(combinedData.indexedDB)) {
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName);
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        for (const storeName of Object.keys(dbData)) {
+                            if (!db.objectStoreNames.contains(storeName)) {
+                                db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
+                            }
+                        }
+                    };
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+
+                for (const [storeName, storeData] of Object.entries(dbData)) {
+                    const transaction = db.transaction(storeName, 'readwrite');
+                    const store = transaction.objectStore(storeName);
+                    storeData.forEach(item => {
+                        try {
+                            if (store.keyPath) {
+                                store.put(item);
+                            } else {
+                                store.put(item, item.id || item.key || item.name || item.someUniqueField);
+                            }
+                        } catch (error) {
+                            console.error(`Failed to put item in store ${storeName} in database ${dbName}`, error);
+                        }
+                    });
+                }
+            }
+            top.location.reload()
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function confirmDeleteData() {
+        if (confirm('Are you sure?')) {
+            (async()=>{await deleteData()})();
+            alert('Your data has been deleted!');
+            top.location.reload();
+        }
+        //Swal.fire({
+        //    title: "Are you sure?",
+        //    icon: "warning",
+        //    showCancelButton: true,
+        //    confirmButtonColor: "#ce1b1b",
+        //    confirmButtonText: "Yes",
+        //    cancelButtonColor: "#1a854f",
+        //    cancelButtonText: "No",
+        //    heightAuto: false
+        //}).then((result) => {
+        //    if (result.isConfirmed) {
+        //        (async()=>{await deleteData()})();
+        //        Swal.fire({
+        //            title: "Deleted!",
+        //            text: "Your data has been deleted.",
+        //            icon: "success",
+        //            heightAuto: false
+        //        }).then((result) => {
+        //            if (result.isConfirmed) {
+        //                top.location.reload();
+        //            }
+        //        });
+        //    }
+        //});
+    }
+    
+    async function deleteData() {
+        localStorage.clear();
+
+        const databases = await indexedDB.databases();
+
+        for (const dbInfo of databases) {
+            const dbName = dbInfo.name;
+            if (!dbName) continue;
+
+            await new Promise((resolve, reject) => {
+                const request = indexedDB.deleteDatabase(dbName);
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+                request.onblocked = () => {
+                    console.warn(`Database deletion blocked for ${dbName}`);
+                };
+            });
+        }
+    }
+    </script>
+    <script src="/cloak.js"></script>
+</body>
+</html>

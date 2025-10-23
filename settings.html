@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script defer src="/master.js"></script>
+    <script src="/fontawesome.js" crossorigin="anonymous"></script>
+    <script src="/iniFrame.js"></script>
+    <style>
+        @keyframes fade-in {
+            0% { opacity: 0 }
+            100% { opacity: 1 }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            text-decoration: none;
+            list-style-type: none;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-image 1s ease-in-out;
+            overflow: hidden;
+        }
+
+        .blur {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            backdrop-filter: blur(20px);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main {
+            min-width: 350px;
+            max-width: 550px;
+            background: #202221;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-family: sans-serif;
+            font-size: 1rem;
+            padding-right: 10px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        select {
+            font-size: 0.9rem;
+            padding: 2px 5px;
+            margin-bottom: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        .form-group {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .input-group input {
+            width: 48%;
+        }
+
+        i {
+            font-size: 35px;
+            cursor: pointer;
+            color: #fff;
+            transition: 0.2s ease-in-out;
+        }
+
+        i:hover {
+            color: #c9c7c7;
+        }
+
+        .save-settings-btn {
+            border: none;
+            background-color: #1a854f;
+            padding: 1em;
+            margin-top: 1.5em;
+            color: white;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s ease-in-out;
+        }
+
+        .save-settings-btn:hover {
+            background-color: #167043;
+        }
+    </style>
+</head>
+<body>
+    <noscript>You need to enable javascript to run this app</noscript>
+    <div class="blur">
+        <div class="main">
+            <h1 style="padding-bottom:25px;cursor:default">Settings</h1>
+            <label for="cloak-select">Tab Cloaking:</label>
+            <select name="tabcloak" id="cloak-select">
+                <option value="default">Default</option>
+                <option value="canvas">Canvas</option>
+                <option value="gclassroom">Google Classroom</option>
+                <option value="custom">Custom</option>
+            </select>
+            <div class="form-group">
+                <div class="input-group">
+                    <input disabled type="text" id="custom-tab-name" autocomplete="off" value="Google" placeholder="Custom tab name">
+                    <input disabled type="text" id="custom-tab-icon" autocomplete="off" value="https://www.google.com/favicon.ico" placeholder="Custom tab icon URL">
+                </div>
+            </div>
+            <label for="custom-profile-name">Custom username:<br>(this is only visual in the launcher and does not affect your in-game username)</label>
+            <input type="text" id="custom-profile-name" autocomplete="off" placeholder="Custom username">
+            <label for="ua">User Agent:</label>
+            <h4 id="ua">user agent</h4>
+            <button class="save-settings-btn" onclick="saveSettings()">Save Settings</button>
+            <!--<h3 style="margin-top:10px;">Links:</h3>
+            <i onclick="window.open('https://www.guilded.gg/WebMC?apply=true')" class="fa-brands fa-guilded"></i>-->
+        </div>
+    </div>
+    <script>
+        const cloakSelect = document.getElementById('cloak-select');
+        const customTabNameInput = document.getElementById('custom-tab-name');
+        const customTabIconInput = document.getElementById('custom-tab-icon');
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('ua').innerText = window.navigator.userAgent;
+        });
+
+        if (localStorage.getItem('cloakTab') === 'true' && localStorage.getItem('cloakTo')) {
+            document.querySelector('#cloak-select > option[value="' + localStorage.getItem('cloakTo') + '"]').selected = true;
+            if (localStorage.getItem('cloakTo') == 'custom') {
+                    document.querySelector('#custom-tab-name').disabled = false;
+                    document.querySelector('#custom-tab-icon').disabled = false;
+                    document.querySelector('#custom-tab-name').value = localStorage.getItem('customTabName');
+                    document.querySelector('#custom-tab-icon').value = localStorage.getItem('customTabIcon');
+            }
+        }
+
+        cloakSelect.addEventListener('change', function() {
+            console.log('Selected option:', this.value);
+            if (this.value === 'default') {
+                localStorage.removeItem('cloakTab');
+                localStorage.removeItem('cloakTo');
+            } else {
+                localStorage.setItem('cloakTab', 'true');
+                localStorage.setItem('cloakTo', this.value);
+                cloakTab();
+                if (this.value === 'custom') {
+                    document.querySelector('#custom-tab-name').disabled = false;
+                    document.querySelector('#custom-tab-icon').disabled = false;
+                    if(!localStorage.getItem('customTabName')){
+                        localStorage.setItem('customTabName', 'Google');
+                    }
+                    if(!localStorage.getItem('customTabIcon')){
+                        localStorage.setItem('customTabIcon', 'https://www.google.com/favicon.ico');
+                    }
+                    document.querySelector('#custom-tab-name').value = localStorage.getItem('customTabName');
+                    document.querySelector('#custom-tab-icon').value = localStorage.getItem('customTabIcon');
+                } else {
+                    document.querySelector('#custom-tab-name').disabled = true;
+                    document.querySelector('#custom-tab-icon').disabled = true;
+                }
+            }
+        });
+
+        let typingTimer;
+        const doneTypingInterval = 250;
+
+        function doneTyping() {
+            if(customTabNameInput.value !== ''){localStorage.setItem('customTabName', customTabNameInput.value)};
+            if(customTabIconInput.value !== ''){localStorage.setItem('customTabIcon', customTabIconInput.value)};
+            cloakTab();
+        }
+
+        customTabNameInput.addEventListener('keyup', () => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        customTabIconInput.addEventListener('keyup', () => {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        if(!localStorage.getItem('custom-profile-name')){localStorage.setItem('custom-profile-name', 'WebMCGuest')};
+        document.getElementById('custom-profile-name').value = localStorage.getItem('custom-profile-name');
+
+        function saveSettings() {
+            localStorage.setItem('custom-profile-name', document.getElementById('custom-profile-name').value);
+            top.location.reload();
+        }
+    </script>
+    <script src="/cloak.js"></script>
+</body>
+</html>

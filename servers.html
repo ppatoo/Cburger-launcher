@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script defer src="/master.js"></script>
+    <script src="/fontawesome.js" crossorigin="anonymous"></script>
+    <script src="/server-embed/embed.min.js"></script>
+    <script src="/iniFrame.js"></script>
+    <style>
+        @keyframes fade-in {
+            0% { opacity: 0 }
+            100% { opacity: 1 }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            text-decoration: none;
+            list-style-type: none;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            transition: background-image 1s ease-in-out;
+            overflow: hidden;
+        }
+
+        .blur {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            backdrop-filter: blur(20px);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main {
+            width: 90%;
+            background: #202221;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            overflow-y: auto;
+        }
+
+        .embed-container {
+            background: rgba(32, 34, 33, 0.9);
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            padding: 10px;
+            position: relative;
+        }
+
+        .embed {
+            width: 100%;
+            height: 200px;
+        }
+
+        .server-name {
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-bottom: 5px;
+            font-size: 1rem;
+            font-weight: normal;
+            color: white;
+        }
+
+        .main h1 {
+            grid-column: span 4;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .action-btn {
+            width: 45%;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            background: #3b874b;
+            border: 2px solid rgb(58, 88, 44);
+            text-align: center;
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: all 0.1s;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .action-btn.play-btn {
+            background: #1e90ff;
+            border-color: #1c86ee;
+        }
+
+        .action-btn:hover {
+            box-shadow: none;
+            transform: scale(1.05);
+        }
+
+        .action-btn.copy-btn:hover {
+            background-color: #449557;
+        }
+
+        .action-btn.play-btn:hover {
+            background-color: #1c86ee;
+        }
+
+        .status.online span {
+            color: #00ff00;
+        }
+
+        .status.offline span {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <noscript>You need to enable javascript to run this app</noscript>
+    <div class="blur">
+        <div class="main">
+            <h1>Server List</h1>
+        </div>
+    </div>
+    <script>
+        var eaglerEmbed = false;
+        if(location.protocol=='http:'){var proto='ws'}else if(location.protocol=='https:'){var proto='wss'};window.WebMCSocketTemplate=(proto+'://'+location.host)
+        const servers = [
+            window.WebMCSocketTemplate+'/server',
+            window.WebMCSocketTemplate+'/server/eaglesmp',
+            //"wss://eagler-backrooms.colbster937.dev",
+            "wss://necronis.betterthanarchmc.lol",
+            "wss://mc.arch.lol",
+            "wss://cbnet.lol",
+            "wss://x.mess.eu.org",
+            "wss://sus.shhnowisnottheti.me",
+            "wss://reading-gs.q13x.com",
+            "wss://zentic.cc",
+            //"wss://eg.cloudwars.club",
+            //"wss://mc.firenetwork.lol",
+            "wss://mc.zyth.me",
+            "wss://ep.rufan.tech",
+            "wss://proxy.theludos.com"
+        ];
+        const server_names = [
+            "WebMC",
+            "EagleSMP",
+            //"The Backrooms",
+            "NecronNetwork",
+            "ArchMC",
+            "Cheeseburger Network",
+            "MessCraft",
+            "CreaCraft/ayunboom",
+            "q13x Anarchy",
+            "Zentic Network",
+            //"CloudWars",
+            //"FireNetwork",
+            "ZythMC",
+            "TimeLegacy",
+            "EaglerProxy"
+        ];
+        const server_versions = [
+            "1.8.8",
+            "1.8.8",
+            //"1.8.8",
+            "1.8.8",
+            "1.8.8",
+            "1.8.8",
+            "1.8.8, 1.5.2",
+            "1.8.8, 1.5.2",
+            "1.8.8",
+            "1.8.8",
+            "1.8.8",
+            //"1.8.8",
+            //"1.8.8",
+            "1.8.8",
+            "1.8.8"
+        ];
+        let embeds = [];
+        for (let i = 0; i < servers.length; i++) {
+            var embedContainerDiv = document.createElement("div");
+            embedContainerDiv.className = 'embed-container';
+            embedContainerDiv.id = 'embed-container-'+i;
+            embedContainerDiv.setAttribute('addr', servers[i]);
+
+            var serverNameDiv = document.createElement("div");
+            serverNameDiv.className = 'server-name';
+            serverNameDiv.textContent = server_names[i]+' ('+server_versions[i]+')';
+            embedContainerDiv.appendChild(serverNameDiv);
+
+            var statusDiv = document.createElement("div");
+            statusDiv.className = 'status offline';
+            statusDiv.id = 'status-'+i;
+            statusDiv.innerHTML = 'STATUS: <span>Offline</span>';
+            embedContainerDiv.appendChild(statusDiv);
+
+            var buttonsContainer = document.createElement("div");
+            buttonsContainer.className = 'buttons-container';
+
+            if (eaglerEmbed) {
+                embedContainerDiv.setAttribute('onclick', `copyIP(${i})`);
+                embedContainerDiv.style.cursor = 'pointer';
+                var newEmbedDiv = document.createElement("div");
+                newEmbedDiv.id = 'embed' + (i + 1);
+                newEmbedDiv.className = 'embed';
+                embedContainerDiv.appendChild(newEmbedDiv);
+            } else {
+                embedContainerDiv.style.backgroundColor = '#424242';
+                var copyBtn = document.createElement("button");
+                copyBtn.classList.add('action-btn', 'copy-btn');
+                copyBtn.textContent = 'Copy IP';
+                copyBtn.setAttribute('onclick', `copyIP(${i})`);
+                buttonsContainer.appendChild(copyBtn);
+
+                var playBtn = document.createElement("button");
+                playBtn.classList.add('action-btn', 'play-btn');
+                playBtn.textContent = 'PLAY';
+                playBtn.setAttribute('onclick', `play(${i})`);
+                buttonsContainer.appendChild(playBtn);
+
+                embedContainerDiv.appendChild(buttonsContainer);
+            }
+
+            document.querySelector('.main').appendChild(embedContainerDiv);
+
+            if (eaglerEmbed) {
+                embeds[i] = new ServerEmbed(document.getElementById("embed" + (i + 1)), "100%", "200px");
+                embeds[i].ping(servers[i], server_names[i], true, false, true);
+            } else {
+                checkServerStatus(i, servers[i]);
+            }
+        }
+
+        function copyIP(server) {
+            const ip = document.getElementById('embed-container-'+server).getAttribute('addr');
+            prompt("Copy the IP for "+server_names[server]+" below", ip);
+        }
+
+        function play(server) {
+            top.playVersion(server_versions[server], servers[server]);
+            //top.location.href = top.location.origin + '?server=' + servers[server] + '&version=' + (top.sessionStorage.getItem('lastVersion') ? server_versions[server] : '1.8.8') + '&autolaunch=true';
+        }
+
+        async function checkServerStatus(index, server) {
+            const cleanServer = server.replace(/^wss?:\/\//, '');
+            try {
+                const response = await fetch(`https://api.mcstatus.io/v2/status/java/${cleanServer}`);
+                const data = await response.json();
+                const statusDiv = document.getElementById('status-'+index);
+                if (data.online) {
+                    statusDiv.innerHTML = 'STATUS: <span>Online</span>';
+                    statusDiv.classList.remove('offline');
+                    statusDiv.classList.add('online');
+                } else {
+                    throw new Error("Server reported as offline");
+                }
+            } catch (error) {
+                fallbackCheckServerStatus(index, server);
+            }
+        }
+
+        function fallbackCheckServerStatus(index, server) {
+            const wsProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
+            const ws = new WebSocket(`${server}`);
+            ws.onopen = () => {
+                const statusDiv = document.getElementById('status-'+index);
+                statusDiv.innerHTML = 'STATUS: <span>Online</span>';
+                statusDiv.classList.remove('offline');
+                statusDiv.classList.add('online');
+                ws.close();
+            };
+            ws.onerror = () => {
+                const statusDiv = document.getElementById('status-'+index);
+                statusDiv.innerHTML = 'STATUS: <span>Offline</span>';
+                statusDiv.classList.remove('online');
+                statusDiv.classList.add('offline');
+            };
+        }
+    </script>
+    <script src="/cloak.js"></script>
+</body>
+</html>

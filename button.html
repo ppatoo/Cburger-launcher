@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        #btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            /*padding: 0 20px;*/
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            overflow: hidden;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            background-color: transparent;
+            color: white;
+        }
+
+        #btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: filter 0.3s ease;
+            z-index: -1;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        #btn:hover::before {
+            filter: brightness(0.8);
+        }
+
+        #btn-text,
+        #svg {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 24px;
+            color: #fff;
+            height: 100%;
+        }
+
+        #svg {
+            font-size: 1.5em;
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <script src="/fontawesome.js" crossorigin="anonymous"></script>
+    <button id="btn" onclick="window.open('$url', '_blank')">
+        <span id="btn-text">Button</span>
+        <span id="svg-span" class=""></span>
+        <i id="svg" class=""></i>
+    </button>
+    <script>
+        const queryString = window.location.search;
+        const buttonFASVG = new URLSearchParams(queryString).get('svg');
+        const btn_url = new URLSearchParams(queryString).get('click-url');
+        const bg_hex = new URLSearchParams(queryString).get('bg-hex');
+        if (bg_hex) {
+            const bg_hex_ss = document.createElement('style');
+            bg_hex_ss.innerHTML = `#btn::before {background-color: #${bg_hex};}`;
+            document.head.appendChild(bg_hex_ss);
+        }
+        const textElementText = new URLSearchParams(queryString).get('btn-text');
+        const textElement = document.getElementById('btn-text');
+        textElement.innerText = textElementText;
+        const svgElement = document.getElementById('svg');
+        const classNames = decodeURIComponent(buttonFASVG).split(' ');
+        classNames.forEach(className => {
+            svgElement.classList.add(className);
+        });
+        document.getElementById('btn').setAttribute('onclick', document.getElementById('btn').getAttribute('onclick').replace('$url', decodeURIComponent(btn_url)));
+    </script>
+</body>
+</html>

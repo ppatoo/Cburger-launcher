@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script defer src="/master.js"></script>
+    <script src="/fontawesome.js" crossorigin="anonymous"></script>
+    <script src="/iniFrame.js"></script>
+    <style>
+        @keyframes fade-in {
+            0% { opacity: 0 }
+            100% { opacity: 1 }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+            text-decoration: none;
+            list-style-type: none;
+        }
+
+        body {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            transition: background-image 1s ease-in-out;
+            overflow: hidden;
+        }
+
+        .blur {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            backdrop-filter: blur(20px);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main {
+            width: 90%;
+            background: #202221;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            overflow-y: auto;
+        }
+
+        .tool-container {
+            background: rgba(32, 34, 33, 0.9);
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            padding: 10px;
+            position: relative;
+        }
+
+        .tool-name {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .main h1 {
+            grid-column: span 4;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .action-btn {
+            width: 45%;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            background: #3b874b;
+            border: 2px solid rgb(58, 88, 44);
+            text-align: center;
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: all 0.1s;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .action-btn.use-btn {
+            background: #1e90ff;
+            border-color: #1c86ee;
+        }
+
+        .action-btn:hover {
+            box-shadow: none;
+            transform: scale(1.05);
+        }
+
+        .action-btn.use-btn:hover {
+            background-color: #1c86ee;
+        }
+    </style>
+</head>
+<body>
+    <noscript>You need to enable javascript to run this app</noscript>
+    <div class="blur">
+        <div class="main">
+            <h1>Toolbox</h1>
+        </div>
+    </div>
+    <script>
+        const tools = [
+            "/optionsEditor.html",
+            "/tools/ayunWebEPK/",
+            "/tools/filterchecker/",
+            "https://eaglerforge-builder.vercel.app",
+            "https://prxy.webmc.xyz"
+        ];
+        const tool_names = [
+            "options.txt Editor",
+            "AyunWebEPK",
+            "FilterChecker",
+            "EaglerForge Builder",
+            "Proxy"
+        ];
+        let embeds = [];
+        for (let i = 0; i < tools.length; i++) {
+            var toolContainerDiv = document.createElement("div");
+            toolContainerDiv.className = 'tool-container';
+            toolContainerDiv.id = 'tool-container-'+i;
+            toolContainerDiv.setAttribute('tool', tools[i]);
+
+            var toolNameDiv = document.createElement("div");
+            toolNameDiv.className = 'tool-name';
+            toolNameDiv.textContent = tool_names[i];
+            toolContainerDiv.appendChild(toolNameDiv);
+
+            var buttonContainer = document.createElement("div");
+            buttonContainer.className = 'button-container';
+            toolContainerDiv.style.backgroundColor = '#424242';
+
+            var useBtn = document.createElement("button");
+            useBtn.classList.add('action-btn', 'use-btn');
+            useBtn.textContent = 'USE';
+            useBtn.setAttribute('onclick', `use(${i})`);
+            buttonContainer.appendChild(useBtn);
+
+            toolContainerDiv.appendChild(buttonContainer);
+
+            document.querySelector('.main').appendChild(toolContainerDiv);
+        }
+
+        function use(tool) {
+            location.href = tools[tool];
+        }
+    </script>
+    <script src="/cloak.js"></script>
+</body>
+</html>
