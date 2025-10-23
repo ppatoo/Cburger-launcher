@@ -119,7 +119,7 @@ function playGame() {
         window.friendlyVersion = defaultVersion_fri;
     }
     gameRunning = true;
-    if(localStorage.getItem('cloakTab')!=='true'){document.title='WebMC Launcher | '+window.friendlyVersion};
+    if(localStorage.getItem('cloakTab')!=='true'){document.title='Cburger Launcher | '+window.friendlyVersion};
     if (!window.currentVersion.includes('dropdown-custom-version-')) {
         document.querySelector('.game-frame').src = `/mc/${window.currentVersion}/${s}`;
     } else {
@@ -141,7 +141,7 @@ function stopGame() {
     window.gameFrame.onload = function() {
         if (window.gameFrame.contentWindow.location.href.includes("about:blank")) {
             document.querySelector('.game-frame-load').removeAttribute('srcdoc');
-            if(localStorage.getItem('cloakTab')!=='true'){document.title='WebMC Launcher'}
+            if(localStorage.getItem('cloakTab')!=='true'){document.title='Cburger Launcher'}
             const playBtn = document.querySelector('.play-btn');
             playBtn.classList.remove('play-btn-running');
             playBtn.innerHTML = 'PLAY';
@@ -311,7 +311,7 @@ function playVersion(version, server) {
     topbarChangePage('play');
     playGame();
 }
-if(!localStorage.getItem('custom-profile-name')){localStorage.setItem('custom-profile-name', 'WebMCGuest')};
+if(!localStorage.getItem('custom-profile-name')){localStorage.setItem('custom-profile-name', 'Guest')};
 if(localStorage.getItem('custom-profile-icon')){document.querySelector('.sidebar_profile_icon').src=localStorage.getItem('custom-profile-icon')}
 document.querySelector('.sidebar_profile > a').innerText = localStorage.getItem('custom-profile-name');
 if(localStorage.getItem('loadscript')){eval(localStorage.getItem('loadscript'))};

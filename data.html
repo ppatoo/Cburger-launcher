@@ -172,7 +172,7 @@
         const date = new Date();
         const formattedDate = `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}_${String(date.getDate()).padStart(2, '0')}`;
 
-        const filename = `webmc_${formattedDate}.save`;
+        const filename = `cburger_${formattedDate}.save`;
         const element = document.createElement('a');
         element.href = 'data:text/plain;base64,' + base64Data;
         element.download = filename;

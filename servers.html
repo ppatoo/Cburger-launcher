@@ -1,272 +1,268 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server List</title>
     <script defer src="/master.js"></script>
     <script src="/fontawesome.js" crossorigin="anonymous"></script>
     <script src="/server-embed/embed.min.js"></script>
     <script src="/iniFrame.js"></script>
     <style>
-        @keyframes fade-in {
-            0% { opacity: 0 }
-            100% { opacity: 1 }
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-            text-decoration: none;
-            list-style-type: none;
         }
 
         body {
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            transition: background-image 1s ease-in-out;
-            overflow: hidden;
-        }
-
-        .blur {
-            width: 100%;
-            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: transparent;
-            backdrop-filter: blur(20px);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            color: #fff;
         }
 
-        .main {
-            width: 90%;
-            background: #202221;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(20px);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-gap: 10px;
-            overflow-y: auto;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .embed-container {
-            background: rgba(32, 34, 33, 0.9);
-            border-radius: 10px;
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
             text-align: center;
+            margin-bottom: 3rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .server-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: default;
-            padding: 10px;
-            position: relative;
+            gap: 1rem;
         }
 
-        .embed {
-            width: 100%;
-            height: 200px;
+        .server-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .server-info {
+            flex: 1;
         }
 
         .server-name {
-            margin-bottom: 5px;
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
         }
 
-        .status {
-            margin-bottom: 5px;
-            font-size: 1rem;
-            font-weight: normal;
-            color: white;
+        .server-version {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            display: inline-block;
         }
 
-        .main h1 {
-            grid-column: span 4;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .buttons-container {
+        .status-badge {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        .action-btn {
-            width: 45%;
-            cursor: pointer;
-            color: white;
-            text-decoration: none;
-            background: #3b874b;
-            border: 2px solid rgb(58, 88, 44);
-            text-align: center;
+        .status-badge.online {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.online .status-dot {
+            background: #4ade80;
+        }
+
+        .status-badge.offline .status-dot {
+            background: #f87171;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
             border-radius: 10px;
-            padding: 0.75rem;
-            transition: all 0.1s;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .action-btn.play-btn {
-            background: #1e90ff;
-            border-color: #1c86ee;
-        }
-
-        .action-btn:hover {
-            box-shadow: none;
+        .btn:hover {
             transform: scale(1.05);
         }
 
-        .action-btn.copy-btn:hover {
-            background-color: #449557;
+        .btn:active {
+            transform: scale(0.98);
         }
 
-        .action-btn.play-btn:hover {
-            background-color: #1c86ee;
+        .btn-play {
+            background: linear-gradient(135deg, #d97634 0%, #c85a28 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(200, 90, 40, 0.4);
         }
 
-        .status.online span {
-            color: #00ff00;
+        .btn-play:hover {
+            box-shadow: 0 6px 20px rgba(200, 90, 40, 0.6);
         }
 
-        .status.offline span {
-            color: #ff0000;
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .servers-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <noscript>You need to enable javascript to run this app</noscript>
-    <div class="blur">
-        <div class="main">
-            <h1>Server List</h1>
+    <noscript>You need to enable JavaScript to run this app</noscript>
+    
+    <div class="page-wrapper">
+        <div class="container">
+            <h1>🎮 Minecraft Server List</h1>
+            <div class="servers-grid" id="serverGrid"></div>
         </div>
     </div>
+
     <script>
         var eaglerEmbed = false;
-        if(location.protocol=='http:'){var proto='ws'}else if(location.protocol=='https:'){var proto='wss'};window.WebMCSocketTemplate=(proto+'://'+location.host)
+        if(location.protocol=='http:'){var proto='ws'}else if(location.protocol=='https:'){var proto='wss'};
+        window.WebMCSocketTemplate=(proto+'://'+location.host);
+
         const servers = [
-            window.WebMCSocketTemplate+'/server',
-            window.WebMCSocketTemplate+'/server/eaglesmp',
-            //"wss://eagler-backrooms.colbster937.dev",
-            "wss://necronis.betterthanarchmc.lol",
-            "wss://mc.arch.lol",
-            "wss://cbnet.lol",
-            "wss://x.mess.eu.org",
-            "wss://sus.shhnowisnottheti.me",
-            "wss://reading-gs.q13x.com",
-            "wss://zentic.cc",
-            //"wss://eg.cloudwars.club",
-            //"wss://mc.firenetwork.lol",
-            "wss://mc.zyth.me",
-            "wss://ep.rufan.tech",
-            "wss://proxy.theludos.com"
+            "wss://play.cburger.net",
         ];
+
         const server_names = [
-            "WebMC",
-            "EagleSMP",
-            //"The Backrooms",
-            "NecronNetwork",
-            "ArchMC",
             "Cheeseburger Network",
-            "MessCraft",
-            "CreaCraft/ayunboom",
-            "q13x Anarchy",
-            "Zentic Network",
-            //"CloudWars",
-            //"FireNetwork",
-            "ZythMC",
-            "TimeLegacy",
-            "EaglerProxy"
         ];
+
         const server_versions = [
-            "1.8.8",
-            "1.8.8",
-            //"1.8.8",
-            "1.8.8",
-            "1.8.8",
-            "1.8.8",
-            "1.8.8, 1.5.2",
-            "1.8.8, 1.5.2",
-            "1.8.8",
-            "1.8.8",
-            "1.8.8",
-            //"1.8.8",
-            //"1.8.8",
-            "1.8.8",
-            "1.8.8"
+            "1.12.2",
         ];
-        let embeds = [];
-        for (let i = 0; i < servers.length; i++) {
-            var embedContainerDiv = document.createElement("div");
-            embedContainerDiv.className = 'embed-container';
-            embedContainerDiv.id = 'embed-container-'+i;
-            embedContainerDiv.setAttribute('addr', servers[i]);
 
-            var serverNameDiv = document.createElement("div");
-            serverNameDiv.className = 'server-name';
-            serverNameDiv.textContent = server_names[i]+' ('+server_versions[i]+')';
-            embedContainerDiv.appendChild(serverNameDiv);
+        const serverGrid = document.getElementById('serverGrid');
 
-            var statusDiv = document.createElement("div");
-            statusDiv.className = 'status offline';
-            statusDiv.id = 'status-'+i;
-            statusDiv.innerHTML = 'STATUS: <span>Offline</span>';
-            embedContainerDiv.appendChild(statusDiv);
+        servers.forEach((server, i) => {
+            const card = document.createElement('div');
+            card.className = 'server-card';
+            card.innerHTML = `
+                <div class="server-header">
+                    <div class="server-info">
+                        <div class="server-name">${server_names[i]}</div>
+                        <span class="server-version">${server_versions[i]}</span>
+                    </div>
+                    <div class="status-badge offline" id="status-${i}">
+                        <span class="status-dot"></span>
+                        <span>Offline</span>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-play" onclick="play(${i})">
+                        ▶ Play
+                    </button>
+                    <button class="btn btn-copy" onclick="copyIP(${i})">
+                        📋 Copy IP
+                    </button>
+                </div>
+            `;
+            serverGrid.appendChild(card);
+            checkServerStatus(i, server);
+        });
 
-            var buttonsContainer = document.createElement("div");
-            buttonsContainer.className = 'buttons-container';
-
-            if (eaglerEmbed) {
-                embedContainerDiv.setAttribute('onclick', `copyIP(${i})`);
-                embedContainerDiv.style.cursor = 'pointer';
-                var newEmbedDiv = document.createElement("div");
-                newEmbedDiv.id = 'embed' + (i + 1);
-                newEmbedDiv.className = 'embed';
-                embedContainerDiv.appendChild(newEmbedDiv);
-            } else {
-                embedContainerDiv.style.backgroundColor = '#424242';
-                var copyBtn = document.createElement("button");
-                copyBtn.classList.add('action-btn', 'copy-btn');
-                copyBtn.textContent = 'Copy IP';
-                copyBtn.setAttribute('onclick', `copyIP(${i})`);
-                buttonsContainer.appendChild(copyBtn);
-
-                var playBtn = document.createElement("button");
-                playBtn.classList.add('action-btn', 'play-btn');
-                playBtn.textContent = 'PLAY';
-                playBtn.setAttribute('onclick', `play(${i})`);
-                buttonsContainer.appendChild(playBtn);
-
-                embedContainerDiv.appendChild(buttonsContainer);
-            }
-
-            document.querySelector('.main').appendChild(embedContainerDiv);
-
-            if (eaglerEmbed) {
-                embeds[i] = new ServerEmbed(document.getElementById("embed" + (i + 1)), "100%", "200px");
-                embeds[i].ping(servers[i], server_names[i], true, false, true);
-            } else {
-                checkServerStatus(i, servers[i]);
-            }
+        function copyIP(index) {
+            const ip = servers[index];
+            navigator.clipboard.writeText(ip).then(() => {
+                alert(`Copied ${server_names[index]} IP: ${ip}`);
+            }).catch(() => {
+                prompt(`Copy the IP for ${server_names[index]}:`, ip);
+            });
         }
 
-        function copyIP(server) {
-            const ip = document.getElementById('embed-container-'+server).getAttribute('addr');
-            prompt("Copy the IP for "+server_names[server]+" below", ip);
-        }
-
-        function play(server) {
-            top.playVersion(server_versions[server], servers[server]);
-            //top.location.href = top.location.origin + '?server=' + servers[server] + '&version=' + (top.sessionStorage.getItem('lastVersion') ? server_versions[server] : '1.8.8') + '&autolaunch=true';
+        function play(index) {
+            top.playVersion(server_versions[index], servers[index]);
         }
 
         async function checkServerStatus(index, server) {
@@ -274,35 +270,32 @@
             try {
                 const response = await fetch(`https://api.mcstatus.io/v2/status/java/${cleanServer}`);
                 const data = await response.json();
-                const statusDiv = document.getElementById('status-'+index);
-                if (data.online) {
-                    statusDiv.innerHTML = 'STATUS: <span>Online</span>';
-                    statusDiv.classList.remove('offline');
-                    statusDiv.classList.add('online');
-                } else {
-                    throw new Error("Server reported as offline");
-                }
+                updateStatus(index, data.online);
             } catch (error) {
                 fallbackCheckServerStatus(index, server);
             }
         }
 
         function fallbackCheckServerStatus(index, server) {
-            const wsProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
-            const ws = new WebSocket(`${server}`);
+            const ws = new WebSocket(server);
             ws.onopen = () => {
-                const statusDiv = document.getElementById('status-'+index);
-                statusDiv.innerHTML = 'STATUS: <span>Online</span>';
-                statusDiv.classList.remove('offline');
-                statusDiv.classList.add('online');
+                updateStatus(index, true);
                 ws.close();
             };
             ws.onerror = () => {
-                const statusDiv = document.getElementById('status-'+index);
-                statusDiv.innerHTML = 'STATUS: <span>Offline</span>';
-                statusDiv.classList.remove('online');
-                statusDiv.classList.add('offline');
+                updateStatus(index, false);
             };
+        }
+
+        function updateStatus(index, isOnline) {
+            const statusBadge = document.getElementById(`status-${index}`);
+            if (isOnline) {
+                statusBadge.className = 'status-badge online';
+                statusBadge.innerHTML = '<span class="status-dot"></span><span>Online</span>';
+            } else {
+                statusBadge.className = 'status-badge offline';
+                statusBadge.innerHTML = '<span class="status-dot"></span><span>Offline</span>';
+            }
         }
     </script>
     <script src="/cloak.js"></script>

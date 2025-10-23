@@ -34,6 +34,6 @@ function isMobile() {
   }
 }
 if (isMobile()&&!location.href.includes('mobile')) {
-  alert('To get the full WebMC Launcher experience, please visit this page from a proper desktop/laptop computer! You will now be redirected to EaglerMobile.');
+  alert('To get the full Cburger Launcher experience, please visit this page from a proper desktop/laptop computer! You will now be redirected to EaglerMobile.');
   location.href=location.origin+'/mc/mobile/';
 }
