@@ -1,178 +1,456 @@
-const appVersion = '1.0';
+const appVersion = '2.0';
 window.isWebMC = true;
+
+// Modern JavaScript with better organization
+class EaglercraftLauncher {
+    constructor() {
+        this.gameRunning = false;
+        this.versionDropdownOpen = false;
+        this.isFullscreen = false;
+        this.currentVersion = null;
+        this.friendlyVersion = 'Select Version';
+        
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.loadUserPreferences();
+        this.setupVersionDropdown();
+        this.updateUI();
+    }
+
+    setupEventListeners() {
+        // Version dropdown toggle
+        document.addEventListener('click', (e) => {
+            const versionBtn = document.querySelector('.version-btn');
+            const versionDropdown = document.getElementById('versionContent');
+            
+            if (versionBtn && versionBtn.contains(e.target)) {
+                this.toggleVersionDropdown();
+            } else if (versionDropdown && !versionDropdown.contains(e.target)) {
+                this.closeVersionDropdown();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeVersionDropdown();
+            }
+        });
+    }
+
+    loadUserPreferences() {
+        // Load last version
+        const lastVersion = sessionStorage.getItem('lastVersion');
+        if (lastVersion) {
+            this.changeVersion(lastVersion);
+        }
+
+        // Load custom profile
+        const customName = localStorage.getItem('custom-profile-name') || 'Guest';
+        const customIcon = localStorage.getItem('custom-profile-icon');
+        
+        const profileName = document.querySelector('.profile-name');
+        const profileAvatar = document.querySelector('.profile-avatar');
+        
+        if (profileName) profileName.textContent = customName;
+        if (profileAvatar && customIcon) profileAvatar.src = customIcon;
+    }
+
+    setupVersionDropdown() {
+        // Add custom versions from localStorage
+        this.loadCustomVersions();
+    }
+
+    loadCustomVersions() {
+        const installations = JSON.parse(localStorage.getItem("installations") || "[]");
+        const versionDropdown = document.getElementById('versionContent');
+        
+        if (!versionDropdown) return;
+
+        // Clear existing custom versions
+        const existingCustom = versionDropdown.querySelectorAll('.version-option.custom');
+        existingCustom.forEach(el => el.remove());
+
+        // Add custom versions
+        installations.forEach(installation => {
+            const [version, versionName] = installation.split("|");
+            this.addCustomVersion(version, versionName);
+        });
+    }
+
+    addCustomVersion(version, versionName) {
+        const versionDropdown = document.getElementById('versionContent');
+        if (!versionDropdown) return;
+
+        const customCategory = versionDropdown.querySelector('.version-category:last-child');
+        if (!customCategory) return;
+
+        const versionOption = document.createElement('a');
+        versionOption.className = 'version-option custom';
+        versionOption.textContent = versionName;
+        versionOption.onclick = () => this.changeVersion(`custom-${version}`);
+        
+        customCategory.appendChild(versionOption);
+    }
+
+    toggleVersionDropdown() {
+        const dropdown = document.getElementById('versionContent');
+        const arrow = document.getElementById('version-arrow');
+        
+        if (!dropdown) {
+            console.error('Version dropdown not found!');
+            return;
+        }
+
+        console.log('Current dropdown state:', this.versionDropdownOpen);
+        console.log('Dropdown element:', dropdown);
+        console.log('Dropdown classes:', dropdown.className);
+
+        this.versionDropdownOpen = !this.versionDropdownOpen;
+        
+        if (this.versionDropdownOpen) {
+            dropdown.classList.add('show');
+            dropdown.style.display = 'block';
+            if (arrow) arrow.style.transform = 'rotate(180deg)';
+            console.log('Dropdown opened, display:', dropdown.style.display);
+        } else {
+            dropdown.classList.remove('show');
+            dropdown.style.display = 'none';
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+            console.log('Dropdown closed, display:', dropdown.style.display);
+        }
+    }
+
+    closeVersionDropdown() {
+        const dropdown = document.getElementById('versionContent');
+        const arrow = document.getElementById('version-arrow');
+        
+        if (!dropdown) return;
+
+        this.versionDropdownOpen = false;
+        dropdown.classList.remove('show');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+
+    changeVersion(version) {
+        // Handle custom versions
+        if (version.startsWith('custom-')) {
+            const customVersion = version.replace('custom-', '');
+            this.friendlyVersion = document.querySelector(`a[onclick*="custom-${customVersion}"]`)?.textContent || customVersion;
+            this.currentVersion = customVersion;
+        } else {
+            // Handle regular versions
+            const versionElement = document.querySelector(`a[onclick="changeVersion('${version}')"]`);
+            this.friendlyVersion = versionElement?.textContent || version;
+            this.currentVersion = version;
+        }
+
+        // Update UI
+        const versionText = document.getElementById('version-text');
+        if (versionText) versionText.textContent = this.friendlyVersion;
+
+        // Update play button if game is running
+        if (this.gameRunning && this.currentVersion !== version) {
+            this.updatePlayButton('relaunch');
+        }
+
+        // Save to session storage
+        sessionStorage.setItem('lastVersion', this.currentVersion);
+        
+        // Close dropdown
+        this.closeVersionDropdown();
+    }
+
+    updatePlayButton(state = 'play') {
+        const playBtn = document.querySelector('.play-button');
+        if (!playBtn) return;
+
+        playBtn.className = 'play-button';
+        
+        switch (state) {
+            case 'running':
+                playBtn.classList.add('running');
+                playBtn.innerHTML = '<i class="fa-solid fa-stop"></i><span>STOP</span>';
+                playBtn.onclick = () => this.stopGame();
+                break;
+            case 'relaunch':
+                playBtn.classList.add('relaunch');
+                playBtn.innerHTML = '<i class="fa-solid fa-refresh"></i><span>RELAUNCH</span>';
+                playBtn.onclick = () => this.playGame();
+                break;
+            default:
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i><span>PLAY</span>';
+                playBtn.onclick = () => this.playGame();
+        }
+    }
+
+    playGame() {
+        if (!this.currentVersion) {
+            this.changeVersion('1.8.8');
+        }
+
+        this.gameRunning = true;
+        this.updatePlayButton('running');
+
+        // Update title
+        if (localStorage.getItem('cloakTab') !== 'true') {
+            document.title = `Eaglercraft Launcher | ${this.friendlyVersion}`;
+        }
+
+        // Load game frame
+        const gameFrame = document.querySelector('.game-frame');
+        if (gameFrame) {
+            if (this.currentVersion.startsWith('custom-')) {
+                gameFrame.src = this.currentVersion.replace('custom-', '');
+            } else {
+                gameFrame.src = `/mc/${this.currentVersion}/`;
+            }
+        }
+
+        // Show loading frame
+        const gameFrameLoad = document.querySelector('.game-frame-load');
+        if (gameFrameLoad && window.loaderHTML) {
+            gameFrameLoad.srcdoc = window.loaderHTML;
+        }
+
+        // Focus game frame
+        setTimeout(() => {
+            if (gameFrame && gameFrame.contentWindow) {
+                gameFrame.contentWindow.focus();
+            }
+        }, 100);
+    }
+
+    stopGame() {
+        this.gameRunning = false;
+        this.updatePlayButton('play');
+
+        const gameFrame = document.querySelector('.game-frame');
+        if (gameFrame) {
+            gameFrame.src = 'about:blank';
+        }
+
+        // Clear loading frame
+        const gameFrameLoad = document.querySelector('.game-frame-load');
+        if (gameFrameLoad) {
+            gameFrameLoad.removeAttribute('srcdoc');
+        }
+
+        // Update title
+        if (localStorage.getItem('cloakTab') !== 'true') {
+            document.title = 'Eaglercraft Launcher';
+        }
+    }
+
+    toggleFullscreen() {
+        const gameFrame = document.querySelector('.game-frame');
+        if (!gameFrame) return;
+
+        this.isFullscreen = !this.isFullscreen;
+        
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const fullscreenIcon = fullscreenBtn?.querySelector('i');
+        
+        if (this.isFullscreen) {
+            gameFrame.classList.add('game-frame-fs');
+            if (fullscreenIcon) {
+                fullscreenIcon.classList.remove('fa-expand');
+                fullscreenIcon.classList.add('fa-compress');
+            }
+        } else {
+            gameFrame.classList.remove('game-frame-fs');
+            if (fullscreenIcon) {
+                fullscreenIcon.classList.remove('fa-compress');
+                fullscreenIcon.classList.add('fa-expand');
+            }
+        }
+
+        // Focus game frame
+        if (gameFrame.contentWindow) {
+            gameFrame.contentWindow.focus();
+        }
+    }
+
+    openInNewTab() {
+        if (this.currentVersion) {
+            const url = this.currentVersion.startsWith('custom-') 
+                ? this.currentVersion.replace('custom-', '')
+                : `/mc/${this.currentVersion}`;
+            window.open(url, '_blank');
+        }
+    }
+
+    updateUI() {
+        // Update version text
+        const versionText = document.getElementById('version-text');
+        if (versionText) versionText.textContent = this.friendlyVersion;
+
+        // Update app version
+        const versionInfo = document.querySelector('.version-text');
+        if (versionInfo) {
+            versionInfo.textContent = `v${appVersion}`;
+        }
+    }
+}
+
+// Initialize launcher
+let launcher;
+
 function iniframe() {
     return window.self !== window.top;
 }
-let gameRunning = true;
-let versionDropdownOpen = false;
-let isFullscreen = true;
-//if(iniframe()==true){location.href='/iframe.html'};
+// Legacy compatibility functions
+let s = '';
+let al = false;
+let fs = false;
+
+// Handle URL parameters
 var q = window.location.search;
 if(q.toString().startsWith("?")) {
     q = new URLSearchParams(q);
-    var s = q.get("server");
-    if(s) var s = '?server=' + s;
+    s = q.get("server");
+    if(s) s = '?server=' + s;
     var v = q.get("version");
-    if(v) changeVersion(v);
-    var al = q.get("autolaunch");
-    var fs = q.get("fullscreen");
-    if(s||v||al||fs) history.replaceState('/','/','/');
-} else {
-    var s = '';
-}
-const passwd = localStorage.getItem('passwd');
-if(passwd){if(!sessionStorage.getItem('loggedIn')){while(true){{if(prompt('Please log in!')==localStorage.getItem('passwd')){sessionStorage.setItem('loggedIn', 'true');break}else{alert('Incorrect password')}}}}};
-window.addEventListener('load', function() {
-    const loader = document.querySelector('.loader');
-    loader.classList.add('loader--hidden');
-    loader.addEventListener('transitionend', function() {
-        loader.remove();
-    });
-    window.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('game-frame-load').srcdoc = window.loaderHTML;
-    });
-});
-const lastCaptchaDate = localStorage.getItem('lastCaptchaDate');
-window.addEventListener('DOMContentLoaded', function() {
-    if (!lastCaptchaDate || (Date.now() - new Date(lastCaptchaDate).getTime()) > 3 * 24 * 60 * 60 * 1000) {
-        fetch("/loadCaptcha.js")
-            .then(r => r.text())
-            .then(r => eval(r))
-            .catch(error => {
-                console.warn('Failed to load captcha script:', error);
-            });
+    if(v) {
+        // Will be handled by launcher instance
+        window.urlVersion = v;
     }
-    document.addEventListener('contextmenu', event => event.preventDefault());
-    document.querySelector('.dev-info > span').innerHTML = (document.querySelector('.dev-info > span').innerHTML.replace('${appVersion}', appVersion));
+    al = q.get("autolaunch") === 'true';
+    fs = q.get("fullscreen") === 'true';
+    if(s||v||al||fs) history.replaceState('/','/','/');
+}
+
+// Password protection
+const passwd = localStorage.getItem('passwd');
+if(passwd && !sessionStorage.getItem('loggedIn')){
+    while(true){
+        if(prompt('Please log in!') === localStorage.getItem('passwd')){
+            sessionStorage.setItem('loggedIn', 'true');
+            break;
+        } else {
+            alert('Incorrect password');
+        }
+    }
+}
+
+// Initialize launcher when DOM is ready
+window.addEventListener('DOMContentLoaded', function() {
+    // Initialize the launcher
+    launcher = new EaglercraftLauncher();
+    
+    // Handle URL version parameter
+    if(window.urlVersion) {
+        launcher.changeVersion(window.urlVersion);
+    }
+    
+    // Handle autolaunch
+    if(al && window.urlVersion) {
+        launcher.playGame();
+    }
+    
+    // Handle fullscreen
+    if(fs) {
+        launcher.toggleFullscreen();
+    }
+    
+    // Set up game frame reference
     window.gameFrame = document.querySelector('.game-frame');
     if (window.gameFrame) {
         window.gameFrame.addEventListener('contextmenu', event => event.preventDefault());
     }
-    if(al){if(v){playGame()}};
-    if(fs){openFullscreen()}else{exitFullscreen()};
-    customVersions();
-    if(sessionStorage.getItem('lastVersion')!==null){changeVersion(sessionStorage.getItem('lastVersion'))};
+    
+    // Load captcha if needed (disabled for now)
+    // const lastCaptchaDate = localStorage.getItem('lastCaptchaDate');
+    // if (!lastCaptchaDate || (Date.now() - new Date(lastCaptchaDate).getTime()) > 3 * 24 * 60 * 60 * 1000) {
+    //     fetch("/loadCaptcha.js")
+    //         .then(r => r.text())
+    //         .then(r => eval(r))
+    //         .catch(error => {
+    //             console.warn('Failed to load captcha script:', error);
+    //         });
+    // }
+    
+    // Prevent context menu
+    document.addEventListener('contextmenu', event => event.preventDefault());
 });
+
+// Loading screen
+window.addEventListener('load', function() {
+    const loader = document.querySelector('.loader');
+    if (loader) {
+        loader.classList.add('loader--hidden');
+        loader.addEventListener('transitionend', function() {
+            loader.remove();
+        });
+    }
+});
+// Legacy compatibility functions for existing functionality
 function customVersions() {
-    const installations = getInstallationsFromLocalStorage();
-    installations.forEach(installation => {
-        const [version, versionName] = installation.split("|");
-        addVersionToDropdown(version, versionName);
-    });
-    function getInstallationsFromLocalStorage() {
-        const installations = localStorage.getItem("installations");
-        return installations ? JSON.parse(installations) : [];
-    }
-    function addVersionToDropdown(version, versionName) {
-        const versionContent = document.getElementById("versionContent");
-        if (versionContent) {
-            const a = document.createElement('a');
-            a.className = "custom";
-            a.id = "dropdown-custom-version-"+version;
-            a.innerHTML = versionName;
-            a.onclick = () => changeVersion('dropdown-custom-version-'+version);
-            versionContent.appendChild(a);
-        }
+    if (launcher) {
+        launcher.loadCustomVersions();
     }
 }
+
 function reloadCustomVersions() {
-    const customversions = document.querySelectorAll('.version-content .custom');
-    for (let i = 0; i < customversions.length; i++) {
-        customversions[i].remove();
+    if (launcher) {
+        launcher.loadCustomVersions();
     }
-    customVersions();
 }
+
 function versionDropdown(action) {
-    if (action=='close') {
-        versionDropdownOpen = true;
-    } else if (action=='open') {
-        versionDropdownOpen = false;
-    }
-    if (versionDropdownOpen) {
-        document.querySelector('.version-content').style.display = 'none';
-        if(document.querySelector('#version-btn-arrow')){document.querySelector('#version-btn-arrow').style.transform = 'rotate(0deg)'};
-        versionDropdownOpen = false;
-    } else if (!versionDropdownOpen) {
-        document.querySelector('.version-content').style.display = 'block';
-        if(document.querySelector('#version-btn-arrow')){document.querySelector('#version-btn-arrow').style.transform = 'rotate(180deg)'};
-        versionDropdownOpen = true;
-    }
-}
-function changeVersion(version) {
-    if (version.includes('dropdown-custom-version-')) {
-        window.friendlyVersion = document.getElementById('dropdown-custom-version-'+version.replace('dropdown-custom-version-', '')).innerHTML;
-    } else {
-        window.friendlyVersion = document.querySelector('a[onclick="changeVersion(\'' + version + '\')"]').innerHTML;
-        //window.friendlyVersion = version.replace('classic', 'Classic').replace('ms-Classic', 'Classic (Microsoft Recreation)').replace('beta-1.7.3', 'Beta 1.7.3').replace('beta-1.3', 'Beta 1.3').replace('alpha-1.2.6', 'Alpha 1.2.6').replace('dragonx-client', 'DragonX Client').replace('resent', 'Resent Client').replace('optifine', 'Shadow Client').replace('flame', 'Flame Client').replace('1.9', '1.9.4');
-    }
-    document.querySelector('.version-btn').innerHTML = window.friendlyVersion;
-    if(gameRunning==true&&window.currentVersion!==version.toString().toLowerCase().replaceAll(' ', '-')){document.querySelector('.play-btn').innerHTML='RELAUNCH';document.querySelector('.play-btn').classList.add('play-btn-relaunch');document.querySelector('.play-btn').setAttribute('onclick', 'playGame()')};
-    window.currentVersion = version.toString().toLowerCase().replaceAll(' ', '-');
-    sessionStorage.setItem('lastVersion', window.currentVersion);
-    versionDropdown('close');
-}
-function playGame() {
-    if(s==null){s=''};
-    const playBtn = document.querySelector('.play-btn');
-    playBtn.classList.remove('play-btn-relaunch');
-    playBtn.classList.add('play-btn-running');
-    playBtn.innerHTML = 'STOP';
-    playBtn.setAttribute('onclick', 'stopGame()');
-    const gameFrameLoad = document.querySelector('.game-frame-load');
-    if (gameFrameLoad && window.loaderHTML) {
-        gameFrameLoad.srcdoc = window.loaderHTML;
-    }
-    if (!window.currentVersion || window.currentVersion == null) {
-        const defaultVersion = '1.8.8';
-        const defaultVersion_fri = '1.8.8';
-        changeVersion(defaultVersion);
-        window.friendlyVersion = defaultVersion_fri;
-    }
-    gameRunning = true;
-    if(localStorage.getItem('cloakTab')!=='true'){document.title='Cburger Launcher | '+window.friendlyVersion};
-    if (!window.currentVersion.includes('dropdown-custom-version-')) {
-        document.querySelector('.game-frame').src = `/mc/${window.currentVersion}/${s}`;
-    } else {
-        document.querySelector('.game-frame').src = `${window.currentVersion.replace('dropdown-custom-version-', '')}/${s}`;
-    }
-    const aboutBlankBtn = document.getElementById('aboutBlank-btn');
-    const reloadBtn = document.getElementById('reload-btn');
-    if (aboutBlankBtn) aboutBlankBtn.style.visibility = 'visible';
-    if (reloadBtn) reloadBtn.style.visibility = 'visible';
-    setTimeout(function() {
-        if (aboutBlankBtn) aboutBlankBtn.style.opacity = '1';
-        if (reloadBtn) reloadBtn.style.opacity = '1';
-        document.querySelector('.game-frame').contentWindow.focus();
-    }, 100);
-}
-function stopGame() {
-    gameRunning = false;
-    if (!window.gameFrame) return;
-    window.gameFrame.src = "about:blank";
-    window.gameFrame.onload = function() {
-        if (window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.location.href.includes("about:blank")) {
-            const gameFrameLoad = document.querySelector('.game-frame-load');
-            if (gameFrameLoad) {
-                gameFrameLoad.removeAttribute('srcdoc');
-            }
-            if(localStorage.getItem('cloakTab')!=='true'){document.title='Cburger Launcher'}
-            const playBtn = document.querySelector('.play-btn');
-            playBtn.classList.remove('play-btn-running');
-            playBtn.innerHTML = 'PLAY';
-            playBtn.setAttribute('onclick', 'playGame()');
-            const aboutBlankBtn = document.getElementById('aboutBlank-btn');
-            const reloadBtn = document.getElementById('reload-btn');
-            if (aboutBlankBtn) aboutBlankBtn.style.opacity = '0';
-            if (reloadBtn) reloadBtn.style.opacity = '0';
-            setTimeout(function() {
-                if (window.gameFrame.contentWindow.location.href.includes(location.origin + "/blank.html")) {
-                    if (aboutBlankBtn) aboutBlankBtn.style.visibility = 'hidden';
-                    if (reloadBtn) reloadBtn.style.visibility = 'hidden';
-                }
-            }, 2000);
+    if (launcher) {
+        if (action === 'close') {
+            launcher.closeVersionDropdown();
+        } else if (action === 'open') {
+            launcher.toggleVersionDropdown();
+        } else {
+            launcher.toggleVersionDropdown();
         }
     }
 }
+
+function toggleVersionDropdown() {
+    console.log('toggleVersionDropdown called');
+    if (launcher) {
+        console.log('Launcher found, calling toggleVersionDropdown');
+        launcher.toggleVersionDropdown();
+    } else {
+        console.error('Launcher not initialized yet');
+    }
+}
+
+// Test function to check dropdown element
+function testDropdown() {
+    const dropdown = document.getElementById('versionContent');
+    const selector = document.querySelector('.version-selector');
+    
+    console.log('Dropdown element:', dropdown);
+    console.log('Selector element:', selector);
+    console.log('Dropdown position:', dropdown ? dropdown.getBoundingClientRect() : 'not found');
+    console.log('Selector position:', selector ? selector.getBoundingClientRect() : 'not found');
+}
+
+function changeVersion(version) {
+    if (launcher) {
+        launcher.changeVersion(version);
+    }
+}
+
+function playGame() {
+    if (launcher) {
+        launcher.playGame();
+    }
+}
+
+function stopGame() {
+    if (launcher) {
+        launcher.stopGame();
+    }
+}
+// Additional legacy functions
 function openAboutBlankWindow(version) {
     const newAboutBlankWindow = window.open('about:blank');
     const loadiframe = document.createElement('iframe');
@@ -211,134 +489,140 @@ function openAboutBlankWindow(version) {
     
     newAboutBlankWindow.document.body.appendChild(loadiframe);
     newAboutBlankWindow.document.body.appendChild(iframe);
-    
 }
+
 function openInNewTab() {
-    window.open(location.origin + `/mc/${window.currentVersion}`, '_blank');
-}
-function openFullscreen() {
-    isFullscreen = true;
-    window.gameFrame.classList.add('game-frame-fs');
-    document.querySelector('.game-frame-load').classList.add('game-frame-load-fs');
-    
-    // Check if fullscreen button exists before accessing its style
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    if (fullscreenBtn) {
-        fullscreenBtn.style.bottom = '7px';
-        const fullscreenIcon = document.querySelector('#fullscreen-btn > i');
-        if (fullscreenIcon) {
-            fullscreenIcon.classList.remove('fa-expand');
-            fullscreenIcon.classList.add('fa-compress');
-        }
+    if (launcher) {
+        launcher.openInNewTab();
     }
-
-    // old function
-    //var gameFrame = document.querySelector('.game-frame');
-    //if (gameFrame.requestFullscreen) {
-    //    gameFrame.requestFullscreen();
-    //} else if (gameFrame.webkitRequestFullscreen) {
-    //    gameFrame.webkitRequestFullscreen();
-    //} else if (gameFrame.msRequestFullscreen) {
-    //    gameFrame.msRequestFullscreen();
-    //}
-    //gameFrame.contentWindow.focus();
 }
-function exitFullscreen() {
-    isFullscreen = false;
-    window.gameFrame.classList.remove('game-frame-fs');
-    document.querySelector('.game-frame-load').classList.remove('game-frame-load-fs');
-    
-    // Check if fullscreen button exists before accessing its style
-    const fullscreenBtn = document.getElementById('fullscreen-btn');
-    if (fullscreenBtn) {
-        fullscreenBtn.style.bottom = 'calc(7.5% + 7px)';
-        const fullscreenIcon = document.querySelector('#fullscreen-btn > i');
-        if (fullscreenIcon) {
-            fullscreenIcon.classList.remove('fa-compress');
-            fullscreenIcon.classList.add('fa-expand');
-        }
-    }
 
-    // old function
-    //document.exitFullscreen();
-}
 function toggleFullscreen() {
-    window.gameFrame.contentWindow.focus();
-    if (isFullscreen) {
-        exitFullscreen();
-    } else {
-        openFullscreen();
+    if (launcher) {
+        launcher.toggleFullscreen();
     }
 }
 function writeError(error) {
     document.write(error);
 }
+// Navigation functions
 let lastSidebarChange = 'launcher';
 function sidebarChangePage(changeTo) {
+    console.log('Sidebar change requested:', changeTo);
+    
     if (lastSidebarChange === changeTo) {
         return;
-    } else {
-        lastSidebarChange = changeTo;
     }
-    const sidebarFrame = document.querySelector('.sidebar_frame');
-    if (changeTo === 'launcher') {
-        sidebarFrame.src = 'about:blank';
-        sidebarFrame.style.visibility = 'hidden';
-        const sidebar_content_items = document.body.querySelectorAll('.sidebar-content')
-        for (let i = 0; i < sidebar_content_items.length; i++) {
-            sidebar_content_items[i].classList.remove('sidebar-content-selected');
-        }
-        document.getElementById('sidebar-'+changeTo).classList.add('sidebar-content-selected');
-    } else if(!changeTo.includes('custom')) {
-        sidebarFrame.src = '/'+changeTo+'.html';
-        sidebarFrame.style.visibility = 'visible';
-        const sidebar_content_items = document.body.querySelectorAll('.sidebar-content')
-        for (let i = 0; i < sidebar_content_items.length; i++) {
-            sidebar_content_items[i].classList.remove('sidebar-content-selected');
-        }
-        document.getElementById('sidebar-'+changeTo).classList.add('sidebar-content-selected');
+    
+    lastSidebarChange = changeTo;
+    
+    // Update active nav item
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => item.classList.remove('active'));
+    
+    const activeItem = document.getElementById(`sidebar-${changeTo}`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+        console.log('Active item updated:', activeItem);
     } else {
-        sidebarFrame.src = changeTo.replace('custom-', '');
-        sidebarFrame.style.visibility = 'visible';
-        const sidebar_content_items = document.body.querySelectorAll('.sidebar-content')
-        for (let i = 0; i < sidebar_content_items.length; i++) {
-            sidebar_content_items[i].classList.remove('sidebar-content-selected');
-        }
-        document.getElementById('sidebar-'+changeTo).classList.add('sidebar-content-selected'); 
+        console.error('Active item not found:', `sidebar-${changeTo}`);
+    }
+    
+    // Handle content loading
+    const contentFrame = document.querySelector('.content-frame');
+    if (!contentFrame) {
+        console.error('Content frame not found!');
+        return;
+    }
+    
+    if (changeTo === 'launcher') {
+        contentFrame.src = 'about:blank';
+        contentFrame.style.visibility = 'hidden';
+        console.log('Launcher view - hiding content frame');
+    } else if (!changeTo.includes('custom')) {
+        contentFrame.src = `/${changeTo}.html`;
+        contentFrame.style.visibility = 'visible';
+        console.log('Loading page:', `/${changeTo}.html`);
+    } else {
+        contentFrame.src = changeTo.replace('custom-', '');
+        contentFrame.style.visibility = 'visible';
+        console.log('Loading custom page:', changeTo.replace('custom-', ''));
     }
 }
+
 let lastTopbarPage = 'play';
 function topbarChangePage(changeTo) {
-    if (lastTopbarPage !== changeTo) {
+    if (lastTopbarPage === changeTo) {
+        return;
+    }
+    
         lastTopbarPage = changeTo;
-        const topbarFrame = document.querySelector('.topbar_frame');
-        const topbarElements = document.body.querySelectorAll('.topbar > a');
-        for (let i = 0; i < topbarElements.length; i++) {
-            topbarElements[i].classList.remove('active');
-        }
-        document.getElementById('topbar-'+changeTo).classList.add('active');
-        if (changeTo !== 'play' && changeTo.includes('custom')) {
-            topbarFrame.src='/topbar/'+changeTo+'.html';
-            topbarFrame.style.visibility = 'visible';
-        } else if(changeTo.includes('custom')) {
-            topbarFrame.src=changeTo.replace('custom-', '');
-            topbarFrame.style.visibility = 'visible';
+    
+    // Update active tab
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => tab.classList.remove('active'));
+    
+    const activeTab = document.getElementById(`topbar-${changeTo}`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+    
+    // Handle content loading
+    const contentFrame = document.querySelector('.content-frame');
+    if (!contentFrame) return;
+    
+    if (changeTo === 'play') {
+        contentFrame.src = 'about:blank';
+        contentFrame.style.visibility = 'hidden';
+    } else if (changeTo.includes('custom')) {
+        contentFrame.src = changeTo.replace('custom-', '');
+        contentFrame.style.visibility = 'visible';
         } else {
-            topbarFrame.src='about:blank';
-            topbarFrame.style.visibility = 'hidden';
-        }
+        contentFrame.src = `/${changeTo}.html`;
+        contentFrame.style.visibility = 'visible';
     }
 }
+// Utility functions
 function playVersion(version, server) {
-    changeVersion(version);
+    if (launcher) {
+        launcher.changeVersion(version);
+    }
     if (server) {
-        s = '?server='+server;
+        s = '?server=' + server;
     }
     sidebarChangePage('launcher');
     topbarChangePage('play');
     playGame();
 }
-if(!localStorage.getItem('custom-profile-name')){localStorage.setItem('custom-profile-name', 'Guest')};
-if(localStorage.getItem('custom-profile-icon')){document.querySelector('.sidebar_profile_icon').src=localStorage.getItem('custom-profile-icon')}
-document.querySelector('.sidebar_profile > a').innerText = localStorage.getItem('custom-profile-name');
-if(localStorage.getItem('loadscript')){eval(localStorage.getItem('loadscript'))};
+
+function writeError(error) {
+    document.write(error);
+}
+
+// Initialize user preferences
+if (!localStorage.getItem('custom-profile-name')) {
+    localStorage.setItem('custom-profile-name', 'Guest');
+}
+
+// Load custom profile icon if available
+if (localStorage.getItem('custom-profile-icon')) {
+    const profileAvatar = document.querySelector('.profile-avatar');
+    if (profileAvatar) {
+        profileAvatar.src = localStorage.getItem('custom-profile-icon');
+    }
+}
+
+// Load custom profile name
+const profileName = document.querySelector('.profile-name');
+if (profileName) {
+    profileName.textContent = localStorage.getItem('custom-profile-name');
+}
+
+// Load custom script if available
+if (localStorage.getItem('loadscript')) {
+    try {
+        eval(localStorage.getItem('loadscript'));
+    } catch (error) {
+        console.warn('Failed to load custom script:', error);
+    }
+}

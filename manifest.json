@@ -1,14 +1,26 @@
 {
-    "name": "Cheese Burger Launcher",
+    "name": "Eaglercraft Launcher",
+    "short_name": "Eaglercraft",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#009933",
-    "theme_color": "#009933",
+    "background_color": "#0f1419",
+    "theme_color": "#2d5a27",
+    "description": "Modern Minecraft launcher for the web",
+    "orientation": "landscape-primary",
     "icons": [
-      {
-        "src": "favicon.png",
-        "type": "image/png",
-        "sizes": "300x300"
-      }
-    ]
-  }
+        {
+            "src": "favicon.png",
+            "type": "image/png",
+            "sizes": "300x300",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/mc-logo.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        }
+    ],
+    "categories": ["games", "entertainment"],
+    "lang": "en",
+    "dir": "ltr"
+}

@@ -1,82 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CheeseBurger Launcherr</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eaglercraft Launcher</title>
     <link rel="icon" href="/icons/mc-logo.png">
     <link rel="stylesheet" href="/style.css">
     <script defer src="/master.js"></script>
     <script src="/siteAPI.js"></script>
     <script src="/fontawesome.js" crossorigin="anonymous"></script>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#009933">
-    <meta property="og:title" content="Cburger Launcher" />
+    <meta name="theme-color" content="#2d5a27">
+    <meta property="og:title" content="Eaglercraft Launcher" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="/" />
     <meta property="og:image" content="/shader-screenshots/0.jpeg" />
-    <meta property="og:description" content="Minecraft launcher for the web." />
-    <meta property="og:site_name" content="Cburger.net" />
+    <meta property="og:description" content="Modern Minecraft launcher for the web." />
+    <meta property="og:site_name" content="Eaglercraft" />
     <meta property="og:locale" content="en_US" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <noscript>You need to enable javascript to run this app</noscript>
-    <div class="loader"></div>
-    <div class="main-content">
-        <div class="sidebar" onclick="window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.focus();">
-            <div class="sidebar_profile">
-                <img src="/icons/default-profile-icon.png" class="sidebar_profile_icon">
-                <a>${usrName}</a>
+    <noscript>You need to enable JavaScript to run this application</noscript>
+    
+    <!-- Loading Screen -->
+    <div class="loader">
+        <div class="loader-content">
+            <div class="loader-icon">
+                <i class="fa-solid fa-cube"></i>
             </div>
-            <li id="sidebar-launcher" class="sidebar-content sidebar-content-selected" onclick="sidebarChangePage('launcher')">
-                <img src="/icons/mc-logo.png" class="sidebar-content-icon">
-                <a>Launcher</a>
-            </li>
-            <li id="sidebar-servers" class="sidebar-content" onclick="sidebarChangePage('servers')">
-                <img src="/icons/server.png" class="sidebar-content-icon">
-                <a>Server List</a>
-            </li>
-            <li id="sidebar-data" class="sidebar-content" onclick="sidebarChangePage('data')">
-                <img src="/icons/folder.png" class="sidebar-content-icon">
-                <a>Site Data</a>
-            </li>
-            <li id="sidebar-toolbox" class="sidebar-content" onclick="sidebarChangePage('toolbox')">
-                <img src="/icons/toolbox.png" class="sidebar-content-icon">
-                <a>Toolbox</a>
-            </li>
-            <li id="sidebar-changelog" class="sidebar-content" onclick="sidebarChangePage('changelog')">
-                <img src="/icons/changelog.png" class="sidebar-content-icon">
-                <a>Changelog</a>
-            </li>
-            <li id="sidebar-settings" class="sidebar-content" onclick="sidebarChangePage('settings')">
-                <img src="/icons/settings.png" class="sidebar-content-icon">
-                <a>Settings</a>
-            </li>
-            <div class="dev-info">
-                <span style="cursor:default;color:#969696">v${appVersion}</span>
+            <div class="loader-text">Loading Cburger Launcher...</div>
+            <div class="loader-progress">
+                <div class="loader-bar"></div>
             </div>
-        </div>
-        <iframe src="about:blank" class="sidebar_frame"></iframe>
-        <div onclick="window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.focus()" class="horizontal-bar topbar" style="top:0;height:6%;">
-            <a id="topbar-play" onclick="topbarChangePage('play')" class="active">Play</a>
-            <a id="topbar-installations" onclick="topbarChangePage('installations')" class="inactive">Installations</a>
-            <!--<a id="topbar-skins" onclick="topbarChangePage('skins')" class="inactive">Skins</a>
-            <a id="topbar-patchnotes" onclick="topbarChangePage('patchnotes')" class="inactive">Patch Notes</a>-->
-        </div>
-        <iframe src="about:blank" class="topbar_frame"></iframe>
-        <iframe src="about:blank" class="game-frame-load"></iframe>
-        <iframe src="about:blank" class="game-frame"></iframe>
-        <div onclick="window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.focus()" class="horizontal-bar" style="bottom:0;height:7.5%;">
-            <div class="version-dropdown">
-                <button style="float:left;" onclick="versionDropdown()" class="version-btn">Select Version <i id="version-btn-arrow" class="fa-solid fa-caret-down"></i></button>
-                <div class="version-content" id="versionContent">
-                    <a class="modded" onclick="changeVersion('scratch')">TuffNet Launcher</a>
-                </div>
-            </div>
-            <a class="play-btn" onclick="playGame()">PLAY With Cburger!</a>
-            <span>Updated with <i style="color:#ea3737;text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;" class="fa-solid fa-heart"></i> by Patoss..</span>
         </div>
     </div>
+
+    <!-- Main Application -->
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="/icons/mc-logo.png" alt="Minecraft" class="logo-icon">
+                    <span class="logo-text">Eaglercraft</span>
+                </div>
+            </div>
+            
+            <div class="user-profile">
+                <img src="/icons/default-profile-icon.png" class="profile-avatar" alt="Profile">
+                <div class="profile-info">
+                    <div class="profile-name">Guest</div>
+                    <div class="profile-status">Online</div>
+                </div>
+            </div>
+
+            <div class="navigation-menu">
+                <div id="sidebar-launcher" class="nav-item active" onclick="sidebarChangePage('launcher')">
+                    <i class="fa-solid fa-play nav-icon"></i>
+                    <span class="nav-text">Launcher</span>
+                </div>
+                <div id="sidebar-servers" class="nav-item" onclick="sidebarChangePage('servers')">
+                    <i class="fa-solid fa-server nav-icon"></i>
+                    <span class="nav-text">Servers</span>
+                </div>
+                <div id="sidebar-data" class="nav-item" onclick="sidebarChangePage('data')">
+                    <i class="fa-solid fa-folder nav-icon"></i>
+                    <span class="nav-text">Data</span>
+                </div>
+                <div id="sidebar-toolbox" class="nav-item" onclick="sidebarChangePage('toolbox')">
+                    <i class="fa-solid fa-toolbox nav-icon"></i>
+                    <span class="nav-text">Toolbox</span>
+                </div>
+                <div id="sidebar-changelog" class="nav-item" onclick="sidebarChangePage('changelog')">
+                    <i class="fa-solid fa-list nav-icon"></i>
+                    <span class="nav-text">Changelog</span>
+                </div>
+                <div id="sidebar-settings" class="nav-item" onclick="sidebarChangePage('settings')">
+                    <i class="fa-solid fa-gear nav-icon"></i>
+                    <span class="nav-text">Settings</span>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="version-info">
+                    <span class="version-text">v2.0</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-nav">
+                <div class="nav-tabs">
+                    <button id="topbar-play" class="nav-tab active" onclick="topbarChangePage('play')">
+                        <i class="fa-solid fa-gamepad"></i>
+                        <span>Play</span>
+                    </button>
+                    <button id="topbar-installations" class="nav-tab" onclick="topbarChangePage('installations')">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Installations</span>
+                    </button>
+                </div>
+                <div class="nav-controls">
+                    <button class="control-btn" onclick="toggleFullscreen()" id="fullscreen-btn">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                    <button class="control-btn" onclick="openInNewTab()" id="new-tab-btn">
+                        <i class="fa-solid fa-external-link-alt"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Frame -->
+            <div class="content-area">
+                <iframe src="about:blank" class="content-frame"></iframe>
+                <iframe src="about:blank" class="game-frame-load"></iframe>
+                <iframe src="about:blank" class="game-frame"></iframe>
+            </div>
+
+            <!-- Bottom Control Bar -->
+            <footer class="control-bar">
+                <div class="version-selector">
+                    <button class="version-btn" onclick="toggleVersionDropdown()">
+                        <i class="fa-solid fa-cube"></i>
+                        <span id="version-text">Select Version</span>
+                        <i id="version-arrow" class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="version-dropdown" id="versionContent">
+                        <div class="version-category">
+                            <div class="category-header">Vanilla</div>
+                            <a class="version-option vanilla" onclick="changeVersion('1.8.8')">1.8.8</a>
+                            <a class="version-option vanilla" onclick="changeVersion('1.9')">1.9.4</a>
+                        </div>
+                        <div class="version-category">
+                            <div class="category-header">Modded</div>
+                            <a class="version-option modded" onclick="changeVersion('1.8.8-forge')">1.8.8 Forge</a>
+                            <a class="version-option modded" onclick="changeVersion('optifine')">OptiFine</a>
+                        </div>
+                        <div class="version-category">
+                            <div class="category-header">Custom</div>
+                            <a class="version-option custom" onclick="changeVersion('scratch')">TuffNet</a>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="play-button" onclick="playGame()">
+                    <i class="fa-solid fa-play"></i>
+                    <span>PLAY</span>
+                </button>
+
+                <div class="status-info">
+                    <div class="status-text">
+                        Made with <i class="fa-solid fa-heart"></i> by Patoss
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
