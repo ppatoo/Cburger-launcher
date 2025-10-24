@@ -92,16 +92,48 @@ input, button {
 }
 
 .sidebar {
-    width: 12.5%;
+    width: auto;
+    min-width: 200px;
+    max-width: 300px;
     height: 100%;
     position: absolute;
-    background-color: #242424;
+    background: linear-gradient(135deg, #D2691E, #228B22);
     top: 0;
     left: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#sidebar-settings {
+    margin-top: auto;
+    margin-bottom: 10px;
+}
+
+.dev-info {
+    margin-top: auto;
+    padding: 10px;
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #D2691E, #228B22);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #CD853F, #32CD32);
 }
 
 .sidebar-content {
@@ -118,6 +150,7 @@ input, button {
     box-sizing: border-box;
     cursor: pointer;
     transition: 0.2s ease-in-out;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .sidebar-content-selected {
@@ -172,8 +205,9 @@ input, button {
     z-index: 250;
     position: absolute;
     border: none;
+    left: auto;
     right: 0;
-    width: 87.5%;
+    width: calc(100% - 200px);
     height: 100%;
     visibility: hidden;
 }
@@ -189,7 +223,7 @@ input, button {
 .game-frame {
     position: absolute;
     border: none;
-    width: 87.5%;
+    width: calc(100% - 200px);
     right: 0;
     top: 6%;
     height: 86.5%;
@@ -199,13 +233,13 @@ input, button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #242424 /*#333*/;
+    background: linear-gradient(135deg, #D2691E, #228B22);
     padding: 10px;
     color: white;
     max-height: 7.5%;
     position: absolute;
     right: 0;
-    width: 87.5%;
+    width: calc(100% - 200px);
     box-sizing: border-box;
 }
 
@@ -454,4 +488,43 @@ input, button {
 
 .key-item .hacked {
     background-color: #d04b1c;
+}
+
+/* Responsive sidebar adjustments */
+@media screen and (max-width: 1024px) {
+    .sidebar {
+        min-width: 180px;
+        max-width: 220px;
+    }
+    
+    .sidebar_frame,
+    .topbar_frame,
+    .game-frame-load,
+    .game-frame,
+    .horizontal-bar {
+        width: calc(100% - 180px);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        min-width: 60px;
+        max-width: 60px;
+    }
+    
+    .sidebar-content a {
+        display: none;
+    }
+    
+    .sidebar_profile a {
+        display: none;
+    }
+    
+    .sidebar_frame,
+    .topbar_frame,
+    .game-frame-load,
+    .game-frame,
+    .horizontal-bar {
+        width: calc(100% - 60px);
+    }
 }

@@ -35,12 +35,19 @@ window.addEventListener('load', function() {
 const lastCaptchaDate = localStorage.getItem('lastCaptchaDate');
 window.addEventListener('DOMContentLoaded', function() {
     if (!lastCaptchaDate || (Date.now() - new Date(lastCaptchaDate).getTime()) > 3 * 24 * 60 * 60 * 1000) {
-        fetch("/loadCaptcha.js").then(r => r.text()).then(r => eval(r));
+        fetch("/loadCaptcha.js")
+            .then(r => r.text())
+            .then(r => eval(r))
+            .catch(error => {
+                console.warn('Failed to load captcha script:', error);
+            });
     }
     document.addEventListener('contextmenu', event => event.preventDefault());
     document.querySelector('.dev-info > span').innerHTML = (document.querySelector('.dev-info > span').innerHTML.replace('${appVersion}', appVersion));
     window.gameFrame = document.querySelector('.game-frame');
-    window.gameFrame.addEventListener('contextmenu', event => event.preventDefault());
+    if (window.gameFrame) {
+        window.gameFrame.addEventListener('contextmenu', event => event.preventDefault());
+    }
     if(al){if(v){playGame()}};
     if(fs){openFullscreen()}else{exitFullscreen()};
     customVersions();
@@ -111,7 +118,10 @@ function playGame() {
     playBtn.classList.add('play-btn-running');
     playBtn.innerHTML = 'STOP';
     playBtn.setAttribute('onclick', 'stopGame()');
-    document.querySelector('.game-frame-load').srcdoc=(window.loaderHTML);
+    const gameFrameLoad = document.querySelector('.game-frame-load');
+    if (gameFrameLoad && window.loaderHTML) {
+        gameFrameLoad.srcdoc = window.loaderHTML;
+    }
     if (!window.currentVersion || window.currentVersion == null) {
         const defaultVersion = '1.8.8';
         const defaultVersion_fri = '1.8.8';
@@ -125,38 +135,39 @@ function playGame() {
     } else {
         document.querySelector('.game-frame').src = `${window.currentVersion.replace('dropdown-custom-version-', '')}/${s}`;
     }
-    document.getElementById('fullscreen-btn').style.visibility = 'visible';
-    document.getElementById('aboutBlank-btn').style.visibility = 'visible';
-    document.getElementById('reload-btn').style.visibility = 'visible';
+    const aboutBlankBtn = document.getElementById('aboutBlank-btn');
+    const reloadBtn = document.getElementById('reload-btn');
+    if (aboutBlankBtn) aboutBlankBtn.style.visibility = 'visible';
+    if (reloadBtn) reloadBtn.style.visibility = 'visible';
     setTimeout(function() {
-        document.getElementById('fullscreen-btn').style.opacity = '1';
-        document.getElementById('aboutBlank-btn').style.opacity = '1';
-        document.getElementById('reload-btn').style.opacity = '1';
+        if (aboutBlankBtn) aboutBlankBtn.style.opacity = '1';
+        if (reloadBtn) reloadBtn.style.opacity = '1';
         document.querySelector('.game-frame').contentWindow.focus();
     }, 100);
 }
 function stopGame() {
     gameRunning = false;
+    if (!window.gameFrame) return;
     window.gameFrame.src = "about:blank";
     window.gameFrame.onload = function() {
-        if (window.gameFrame.contentWindow.location.href.includes("about:blank")) {
-            document.querySelector('.game-frame-load').removeAttribute('srcdoc');
+        if (window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.location.href.includes("about:blank")) {
+            const gameFrameLoad = document.querySelector('.game-frame-load');
+            if (gameFrameLoad) {
+                gameFrameLoad.removeAttribute('srcdoc');
+            }
             if(localStorage.getItem('cloakTab')!=='true'){document.title='Cburger Launcher'}
             const playBtn = document.querySelector('.play-btn');
             playBtn.classList.remove('play-btn-running');
             playBtn.innerHTML = 'PLAY';
             playBtn.setAttribute('onclick', 'playGame()');
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
             const aboutBlankBtn = document.getElementById('aboutBlank-btn');
             const reloadBtn = document.getElementById('reload-btn');
-            fullscreenBtn.style.opacity = '0';
-            aboutBlankBtn.style.opacity = '0';
-            reloadBtn.style.opacity = '0';
+            if (aboutBlankBtn) aboutBlankBtn.style.opacity = '0';
+            if (reloadBtn) reloadBtn.style.opacity = '0';
             setTimeout(function() {
                 if (window.gameFrame.contentWindow.location.href.includes(location.origin + "/blank.html")) {
-                    fullscreenBtn.style.visibility = 'hidden';
-                    aboutBlankBtn.style.visibility = 'hidden';
-                    reloadBtn.style.visibility = 'hidden';
+                    if (aboutBlankBtn) aboutBlankBtn.style.visibility = 'hidden';
+                    if (reloadBtn) reloadBtn.style.visibility = 'hidden';
                 }
             }, 2000);
         }
@@ -209,9 +220,17 @@ function openFullscreen() {
     isFullscreen = true;
     window.gameFrame.classList.add('game-frame-fs');
     document.querySelector('.game-frame-load').classList.add('game-frame-load-fs');
-    document.getElementById('fullscreen-btn').style.bottom = '7px';
-    document.querySelector('#fullscreen-btn > i').classList.remove('fa-expand');
-    document.querySelector('#fullscreen-btn > i').classList.add('fa-compress');
+    
+    // Check if fullscreen button exists before accessing its style
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    if (fullscreenBtn) {
+        fullscreenBtn.style.bottom = '7px';
+        const fullscreenIcon = document.querySelector('#fullscreen-btn > i');
+        if (fullscreenIcon) {
+            fullscreenIcon.classList.remove('fa-expand');
+            fullscreenIcon.classList.add('fa-compress');
+        }
+    }
 
     // old function
     //var gameFrame = document.querySelector('.game-frame');
@@ -228,9 +247,17 @@ function exitFullscreen() {
     isFullscreen = false;
     window.gameFrame.classList.remove('game-frame-fs');
     document.querySelector('.game-frame-load').classList.remove('game-frame-load-fs');
-    document.getElementById('fullscreen-btn').style.bottom = 'calc(7.5% + 7px)';
-    document.querySelector('#fullscreen-btn > i').classList.remove('fa-compress');
-    document.querySelector('#fullscreen-btn > i').classList.add('fa-expand');
+    
+    // Check if fullscreen button exists before accessing its style
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    if (fullscreenBtn) {
+        fullscreenBtn.style.bottom = 'calc(7.5% + 7px)';
+        const fullscreenIcon = document.querySelector('#fullscreen-btn > i');
+        if (fullscreenIcon) {
+            fullscreenIcon.classList.remove('fa-compress');
+            fullscreenIcon.classList.add('fa-expand');
+        }
+    }
 
     // old function
     //document.exitFullscreen();

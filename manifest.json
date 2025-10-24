@@ -6,8 +6,8 @@
     "theme_color": "#009933",
     "icons": [
       {
-        "src": "favicon.webp",
-        "type": "image/webp",
+        "src": "favicon.png",
+        "type": "image/png",
         "sizes": "300x300"
       }
     ]

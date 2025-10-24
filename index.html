@@ -23,7 +23,7 @@
     <noscript>You need to enable javascript to run this app</noscript>
     <div class="loader"></div>
     <div class="main-content">
-        <div class="sidebar" onclick="window.gameFrame.contentWindow.focus();">
+        <div class="sidebar" onclick="window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.focus();">
             <div class="sidebar_profile">
                 <img src="/icons/default-profile-icon.png" class="sidebar_profile_icon">
                 <a>${usrName}</a>
@@ -44,31 +44,29 @@
                 <img src="/icons/toolbox.png" class="sidebar-content-icon">
                 <a>Toolbox</a>
             </li>
-            <li class="sidebar-content" onclick="window.open('/blank', '_blank')">
-                <img src="/icons/download.png" class="sidebar-content-icon">
-                <a>Coming soon!</a>
-            </li>
             <li id="sidebar-changelog" class="sidebar-content" onclick="sidebarChangePage('changelog')">
                 <img src="/icons/changelog.png" class="sidebar-content-icon">
                 <a>Changelog</a>
             </li>
-            <li id="sidebar-settings" class="sidebar-content" style="position:absolute;bottom:2%" onclick="sidebarChangePage('settings')">
+            <li id="sidebar-settings" class="sidebar-content" onclick="sidebarChangePage('settings')">
                 <img src="/icons/settings.png" class="sidebar-content-icon">
                 <a>Settings</a>
             </li>
-            <div class="dev-info" style="position:absolute;bottom:0;left:5%;">
+            <div class="dev-info">
                 <span style="cursor:default;color:#969696">v${appVersion}</span>
             </div>
         </div>
         <iframe src="about:blank" class="sidebar_frame"></iframe>
-        <div onclick="window.gameFrame.contentWindow.focus()" class="horizontal-bar topbar" style="top:0;height:6%;">
+        <div onclick="window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.focus()" class="horizontal-bar topbar" style="top:0;height:6%;">
             <a id="topbar-play" onclick="topbarChangePage('play')" class="active">Play</a>
             <a id="topbar-installations" onclick="topbarChangePage('installations')" class="inactive">Installations</a>
             <!--<a id="topbar-skins" onclick="topbarChangePage('skins')" class="inactive">Skins</a>
             <a id="topbar-patchnotes" onclick="topbarChangePage('patchnotes')" class="inactive">Patch Notes</a>-->
         </div>
         <iframe src="about:blank" class="topbar_frame"></iframe>
-        <div onclick="window.gameFrame.contentWindow.focus()" class="horizontal-bar" style="bottom:0;height:7.5%;">
+        <iframe src="about:blank" class="game-frame-load"></iframe>
+        <iframe src="about:blank" class="game-frame"></iframe>
+        <div onclick="window.gameFrame && window.gameFrame.contentWindow && window.gameFrame.contentWindow.focus()" class="horizontal-bar" style="bottom:0;height:7.5%;">
             <div class="version-dropdown">
                 <button style="float:left;" onclick="versionDropdown()" class="version-btn">Select Version <i id="version-btn-arrow" class="fa-solid fa-caret-down"></i></button>
                 <div class="version-content" id="versionContent">
